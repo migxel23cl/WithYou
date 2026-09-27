@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Withyou</string>
+
+    <!-- Navegación -->
+    <string name="title_home">Inicio</string>
+    <string name="title_messages">Mensajes</string>
+    <string name="title_contacts">Contactos</string>
+    <string name="title_settings">Ajustes</string>
+
+    <!-- Inicio -->
+    <string name="home_question">¿En qué puedo ayudarte?</string>
+    <string name="home_tap_to_talk">Toca para hablar</string>
+    <string name="home_mic_description">Micrófono. Toca para hablar</string>
+    <string name="home_mic_stop_description">Escuchando. Toca para terminar</string>
+    <string name="home_listening">Te escucho…</string>
+    <string name="home_thinking">Pensando…</string>
+    <string name="home_heard">Dijiste: «%1$s»</string>
+    <string name="home_quick_actions">Acciones rápidas</string>
+    <string name="action_call">Llamar</string>
+    <string name="action_message">Mensajes</string>
+    <string name="action_alarm">Alarma</string>
+    <string name="action_flashlight">Linterna</string>
+
+    <!-- Permiso de micrófono (RNF-06) -->
+    <string name="mic_permission_title">Usar el micrófono</string>
+    <string name="mic_permission_message">Para que puedas darme instrucciones hablando, necesito usar el micrófono. Solo escucho cuando tocas el botón y no guardo tu voz.</string>
+    <string name="mic_permission_denied">Sin permiso para el micrófono no puedo escucharte.</string>
+    <string name="mic_permission_settings_title">Permiso desactivado</string>
+    <string name="mic_permission_settings_message">El permiso del micrófono está desactivado. Puedes activarlo en los Ajustes del teléfono, en Permisos, Micrófono.</string>
+    <string name="button_continue">Continuar</string>
+    <string name="button_not_now">Ahora no</string>
+    <string name="button_open_settings">Abrir Ajustes</string>
+
+    <!-- Respuestas habladas y en pantalla (RF-13) -->
+    <string name="time_is">Son las %1$s %2$s.</string>
+    <string name="time_is_one">Es la %1$s %2$s.</string>
+    <string name="time_oclock">%1$d en punto</string>
+    <string name="time_quarter">%1$d y cuarto</string>
+    <string name="time_half">%1$d y media</string>
+    <string name="time_minutes">%1$d y %2$d</string>
+    <string name="period_early_morning">de la madrugada</string>
+    <string name="period_morning">de la mañana</string>
+    <string name="period_noon">del mediodía</string>
+    <string name="period_afternoon">de la tarde</string>
+    <string name="period_night">de la noche</string>
+    <string name="date_today">Hoy es %1$s.</string>
+    <string name="flashlight_on">Listo, encendí la linterna.</string>
+    <string name="flashlight_off">Listo, apagué la linterna.</string>
+    <string name="flashlight_not_supported">Este teléfono no tiene linterna.</string>
+    <string name="volume_up">Listo, subí el volumen.</string>
+    <string name="volume_down">Listo, bajé el volumen.</string>
+    <string name="volume_at_max">El volumen ya está al máximo.</string>
+    <string name="volume_at_min">El volumen ya está al mínimo. No lo bajo más para que puedas seguir escuchándome.</string>
+    <string name="action_failed">No pude hacerlo. Intenta de nuevo, por favor.</string>
+    <string name="not_understood">No te entendí bien. Puedes decir, por ejemplo: «¿qué hora es?» o «enciende la linterna».</string>
+    <string name="did_you_mean">No estoy seguro de haberte entendido. ¿Quisiste decir %1$s? Intenta decirlo de nuevo.</string>
+    <string name="options_separator">" o "</string>
+    <string name="coming_soon_intent">Entendí que quieres %1$s. Esta función estará disponible pronto.</string>
+    <string name="nothing_to_confirm">No hay nada pendiente por confirmar. ¿En qué puedo ayudarte?</string>
+    <string name="speech_error_no_speech">No alcancé a escucharte. Toca el micrófono y habla de nuevo.</string>
+    <string name="speech_error_network">No pude entenderte porque no hay conexión a internet. Intenta de nuevo cuando tengas señal.</string>
+    <string name="speech_error_busy">El micrófono está ocupado. Espera un momento e intenta de nuevo.</string>
+    <string name="speech_error_permission">Necesito permiso para usar el micrófono.</string>
+    <string name="speech_error_unavailable">Este teléfono no tiene reconocimiento de voz disponible. Instala o actualiza la aplicación de Google.</string>
+    <string name="speech_error_other">Algo salió mal al escucharte. Intenta de nuevo.</string>
+
+    <!-- Descripción de intenciones (en infinitivo) -->
+    <string name="intent_alarm">poner una alarma</string>
+    <string name="intent_alarm_at">poner una alarma a las %1$s</string>
+    <string name="intent_call">hacer una llamada</string>
+    <string name="intent_call_to">llamar a %1$s</string>
+    <string name="intent_message">enviar un mensaje</string>
+    <string name="intent_message_to">enviar un mensaje a %1$s</string>
+    <string name="intent_flashlight_on">encender la linterna</string>
+    <string name="intent_flashlight_off">apagar la linterna</string>
+    <string name="intent_volume_up">subir el volumen</string>
+    <string name="intent_volume_down">bajar el volumen</string>
+    <string name="intent_time">saber la hora</string>
+    <string name="intent_date">saber la fecha</string>
+    <string name="intent_unknown">hacer eso</string>
+
+    <!-- Temporales -->
+    <string name="coming_soon">Esta función estará disponible pronto.</string>
+    <string name="placeholder_messages">Aquí podrás dictar mensajes a tus contactos.</string>
+    <string name="placeholder_contacts">Aquí podrás ver y agregar tus contactos frecuentes.</string>
+    <string name="placeholder_settings">Aquí podrás ajustar el tamaño del texto y el volumen de la voz.</string>
+</resources>
