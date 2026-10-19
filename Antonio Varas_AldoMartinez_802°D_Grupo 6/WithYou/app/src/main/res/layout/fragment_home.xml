@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:padding="@dimen/screen_padding">
+
+        <TextView
+            android:id="@+id/date_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textAppearance="@style/TextAppearance.WithYou.Body"
+            android:textColor="@color/text_secondary" />
+
+        <TextView
+            android:id="@+id/question_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="center"
+            android:text="@string/home_question"
+            android:textAppearance="@style/TextAppearance.WithYou.Title" />
+
+        <ImageButton
+            android:id="@+id/mic_button"
+            android:layout_width="@dimen/mic_size"
+            android:layout_height="@dimen/mic_size"
+            android:layout_marginTop="24dp"
+            android:background="@drawable/bg_mic_button"
+            android:contentDescription="@string/home_mic_description"
+            android:elevation="6dp"
+            android:padding="@dimen/mic_icon_padding"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_mic"
+            app:tint="@color/white" />
+
+        <TextView
+            android:id="@+id/status_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:importantForAccessibility="no"
+            android:text="@string/home_tap_to_talk"
+            android:textAppearance="@style/TextAppearance.WithYou.Body"
+            android:textStyle="bold" />
+
+        <!-- Lo que la app entendió que dijo el usuario -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/heard_card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:visibility="gone"
+            app:cardBackgroundColor="@color/card_accent"
+            app:cardCornerRadius="@dimen/card_radius"
+            app:cardElevation="0dp">
+
+            <TextView
+                android:id="@+id/heard_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/spacing"
+                android:textAppearance="@style/TextAppearance.WithYou.Body"
+                android:textColor="@color/text_secondary" />
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Respuesta de la app: se muestra y se dice en voz alta a la vez (RF-13) -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/response_card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:visibility="gone"
+            app:cardBackgroundColor="@color/card"
+            app:cardCornerRadius="@dimen/card_radius"
+            app:strokeWidth="3dp">
+
+            <TextView
+                android:id="@+id/response_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:accessibilityLiveRegion="polite"
+                android:padding="@dimen/spacing"
+                android:textAppearance="@style/TextAppearance.WithYou.Body"
+                android:textSize="22sp"
+                android:textStyle="bold" />
+        </com.google.android.material.card.MaterialCardView>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="28dp"
+            android:accessibilityHeading="true"
+            android:text="@string/home_quick_actions"
+            android:textAppearance="@style/TextAppearance.WithYou.Body"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:orientation="horizontal">
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/action_call"
+                style="@style/Widget.WithYou.QuickAction"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/quick_action_height"
+                android:layout_marginEnd="8dp"
+                android:layout_weight="1"
+                android:contentDescription="@string/action_call">
+
+                <TextView
+                    style="@style/TextAppearance.WithYou.Body"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:drawablePadding="8dp"
+                    android:gravity="center"
+                    android:importantForAccessibility="no"
+                    android:text="@string/action_call"
+                    android:textStyle="bold"
+                    app:drawableTint="@color/primary"
+                    app:drawableTopCompat="@drawable/ic_phone" />
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/action_message"
+                style="@style/Widget.WithYou.QuickAction"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/quick_action_height"
+                android:layout_marginStart="8dp"
+                android:layout_weight="1"
+                android:contentDescription="@string/action_message">
+
+                <TextView
+                    style="@style/TextAppearance.WithYou.Body"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:drawablePadding="8dp"
+                    android:gravity="center"
+                    android:importantForAccessibility="no"
+                    android:text="@string/action_message"
+                    android:textStyle="bold"
+                    app:drawableTint="@color/primary"
+                    app:drawableTopCompat="@drawable/ic_message" />
+            </com.google.android.material.card.MaterialCardView>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:orientation="horizontal">
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/action_alarm"
+                style="@style/Widget.WithYou.QuickAction"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/quick_action_height"
+                android:layout_marginEnd="8dp"
+                android:layout_weight="1"
+                android:contentDescription="@string/action_alarm">
+
+                <TextView
+                    style="@style/TextAppearance.WithYou.Body"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:drawablePadding="8dp"
+                    android:gravity="center"
+                    android:importantForAccessibility="no"
+                    android:text="@string/action_alarm"
+                    android:textStyle="bold"
+                    app:drawableTint="@color/primary"
+                    app:drawableTopCompat="@drawable/ic_alarm" />
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/action_flashlight"
+                style="@style/Widget.WithYou.QuickAction"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/quick_action_height"
+                android:layout_marginStart="8dp"
+                android:layout_weight="1"
+                android:contentDescription="@string/action_flashlight">
+
+                <TextView
+                    style="@style/TextAppearance.WithYou.Body"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:drawablePadding="8dp"
+                    android:gravity="center"
+                    android:importantForAccessibility="no"
+                    android:text="@string/action_flashlight"
+                    android:textStyle="bold"
+                    app:drawableTint="@color/primary"
+                    app:drawableTopCompat="@drawable/ic_flashlight" />
+            </com.google.android.material.card.MaterialCardView>
+        </LinearLayout>
+
+    </LinearLayout>
+</ScrollView>

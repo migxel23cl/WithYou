@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- RNF-01: texto >= 18sp y elementos táctiles >= 56dp -->
+    <dimen name="text_body">20sp</dimen>
+    <dimen name="text_title">28sp</dimen>
+    <dimen name="text_nav">16sp</dimen>
+    <dimen name="touch_min">56dp</dimen>
+
+    <dimen name="screen_padding">20dp</dimen>
+    <dimen name="spacing">16dp</dimen>
+    <dimen name="card_radius">20dp</dimen>
+    <dimen name="mic_size">168dp</dimen>
+    <dimen name="mic_icon_padding">44dp</dimen>
+    <dimen name="quick_action_height">120dp</dimen>
+    <dimen name="quick_action_icon">44dp</dimen>
+</resources>

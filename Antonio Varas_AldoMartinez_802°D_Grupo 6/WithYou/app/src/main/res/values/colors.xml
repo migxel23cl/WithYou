@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Paleta del mockup de la Fase 1 -->
+    <color name="primary">#1F4E8C</color>
+    <color name="primary_dark">#163A69</color>
+    <color name="background">#E6F1FB</color>
+    <color name="card">#FFFFFF</color>
+    <color name="card_accent">#CFE5F7</color>
+    <color name="confirm">#1E9E57</color>
+    <color name="cancel">#D32F2F</color>
+    <color name="text_primary">#1A1A1A</color>
+    <color name="text_secondary">#3D4A5C</color>
+    <color name="white">#FFFFFF</color>
+</resources>
