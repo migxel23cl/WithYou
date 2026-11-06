@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:padding="@dimen/screen_padding">
+
+        <ImageView
+            android:layout_width="@dimen/result_icon_size"
+            android:layout_height="@dimen/result_icon_size"
+            android:layout_marginTop="32dp"
+            android:importantForAccessibility="no"
+            android:src="@drawable/ic_check_circle"
+            app:tint="@color/confirm" />
+
+        <TextView
+            android:id="@+id/result_message"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:accessibilityLiveRegion="polite"
+            android:gravity="center"
+            android:textAppearance="@style/TextAppearance.WithYou.Title" />
+
+        <TextView
+            android:id="@+id/speaking_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:importantForAccessibility="no"
+            android:text="@string/result_speaking"
+            android:textAppearance="@style/TextAppearance.WithYou.Body"
+            android:textColor="@color/text_secondary"
+            android:visibility="invisible" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="center"
+            android:text="@string/result_returning"
+            android:textAppearance="@style/TextAppearance.WithYou.Body"
+            android:textColor="@color/text_secondary" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/back_home_button"
+            style="@style/Widget.WithYou.BigButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:text="@string/result_back_home"
+            app:backgroundTint="@color/primary"
+            app:icon="@drawable/ic_home" />
+
+    </LinearLayout>
+</ScrollView>

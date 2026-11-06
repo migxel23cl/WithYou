@@ -10,6 +10,7 @@ import cl.withyou.app.domain.model.RejectReason
 import cl.withyou.app.domain.model.Slot
 import cl.withyou.app.domain.model.TimeSpec
 import cl.withyou.app.domain.model.UserIntent
+import cl.withyou.app.domain.validation.ContactValidator
 import java.time.LocalDateTime
 import java.time.LocalTime
 
@@ -120,7 +121,7 @@ class CommandProcessor(
         onResolved: (Contact) -> Decision,
     ): Decision = when (target) {
         is ContactTarget.Resolved -> {
-            val phone = sanitizePhone(target.contact.phone)
+            val phone = ContactValidator.sanitizePhone(target.contact.phone)
             if (phone == null) {
                 Decision.Reject(RejectReason.INVALID_PHONE, intent)
             } else {
@@ -142,15 +143,6 @@ class CommandProcessor(
             }
     }
 
-    /** Deja solo dígitos (y el "+" inicial). Devuelve null si el número no es válido. */
-    internal fun sanitizePhone(raw: String): String? {
-        val trimmed = raw.trim()
-        if (!PHONE_CHARS.matches(trimmed)) return null
-        val digits = trimmed.filter(Char::isDigit)
-        if (digits.length !in 8..15) return null
-        return if (trimmed.startsWith("+")) "+$digits" else digits
-    }
-
     companion object {
         const val HIGH_CONFIDENCE = 0.8
         const val AMBIGUITY_MARGIN = 0.1
@@ -158,7 +150,6 @@ class CommandProcessor(
         const val MAX_MESSAGE_LENGTH = 480
         const val MAX_RELATIVE_MINUTES = 24 * 60
 
-        private val PHONE_CHARS = Regex("\\+?[0-9 ()-]+")
         private val WHITESPACE = Regex("\\s+")
     }
 }

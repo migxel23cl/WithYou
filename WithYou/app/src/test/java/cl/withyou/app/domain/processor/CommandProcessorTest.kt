@@ -205,15 +205,6 @@ class CommandProcessorTest {
     }
 
     @Test
-    fun `saneamiento de telefonos`() {
-        assertEquals("+56912345678", processor.sanitizePhone("+56 9 1234 5678"))
-        assertEquals("912345678", processor.sanitizePhone("9-1234-5678"))
-        assertNull(processor.sanitizePhone("1234"))
-        assertNull(processor.sanitizePhone("*123#"))
-        assertNull(processor.sanitizePhone("tel:912345678"))
-    }
-
-    @Test
     fun `de punta a punta - frase hablada a decision`() {
         val parser = IntentParser()
         val contacts = listOf(maria)

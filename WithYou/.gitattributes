@@ -1,0 +1,6 @@
+# Finales de línea consistentes entre Windows, macOS y Linux
+* text=auto
+gradlew text eol=lf
+*.bat text eol=crlf
+*.jar binary
+*.png binary

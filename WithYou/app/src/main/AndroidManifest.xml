@@ -4,6 +4,16 @@
     <!-- Los permisos se agregan solo cuando una funcionalidad los necesita (RNF-06). -->
     <!-- Micrófono: para escuchar las instrucciones habladas (RF-01). Se pide en tiempo de ejecución. -->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <!-- Alarmas: permiso normal (no se pide al usuario) para crearlas en el reloj del sistema (RF-05). -->
+    <uses-permission android:name="com.android.alarm.permission.SET_ALARM" />
+    <!-- Llamadas: para llamar directo tras la confirmación del usuario (RF-06). Se pide en tiempo de
+         ejecución; si se niega, se abre el teléfono con el número marcado (ACTION_DIAL). -->
+    <uses-permission android:name="android.permission.CALL_PHONE" />
+
+    <!-- CALL_PHONE no obliga a que el equipo tenga telefonía: la app también se instala en tablets. -->
+    <uses-feature
+        android:name="android.hardware.telephony"
+        android:required="false" />
 
     <!-- Android 11+: sin esto, el reconocedor de voz y el motor de TTS aparecen como no disponibles. -->
     <queries>
@@ -12,6 +22,21 @@
         </intent>
         <intent>
             <action android:name="android.intent.action.TTS_SERVICE" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.SET_ALARM" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.DIAL" />
+            <data android:scheme="tel" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.CALL" />
+            <data android:scheme="tel" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.SENDTO" />
+            <data android:scheme="smsto" />
         </intent>
     </queries>
 

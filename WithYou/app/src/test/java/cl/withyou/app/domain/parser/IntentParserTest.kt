@@ -3,6 +3,7 @@ package cl.withyou.app.domain.parser
 import cl.withyou.app.domain.model.AlarmDay
 import cl.withyou.app.domain.model.Contact
 import cl.withyou.app.domain.model.ContactTarget
+import cl.withyou.app.domain.model.Slot
 import cl.withyou.app.domain.model.DayPeriod
 import cl.withyou.app.domain.model.TimeSpec
 import cl.withyou.app.domain.model.UserIntent
@@ -157,6 +158,43 @@ class IntentParserTest {
         val result = parser.parse("a las ocho de la mañana", contacts)
         assertEquals(UserIntent.SetAlarm(TimeSpec.Exact(8, 0)), result.best.intent)
         assertTrue(result.best.confidence < 0.8)
+    }
+
+    @Test
+    fun `completa la hora que faltaba`() {
+        val noTime = UserIntent.SetAlarm(TimeSpec.MissingHour(null))
+        assertEquals(
+            UserIntent.SetAlarm(TimeSpec.Exact(7, 30), AlarmDay.TOMORROW),
+            parser.completeSlot(noTime, Slot.TIME, "mañana a las siete y media de la mañana"),
+        )
+        assertEquals(
+            UserIntent.SetAlarm(TimeSpec.MissingPeriod(8, 0)),
+            parser.completeSlot(noTime, Slot.TIME, "a las ocho"),
+        )
+        assertEquals(null, parser.completeSlot(noTime, Slot.TIME, "no sé"))
+    }
+
+    @Test
+    fun `respeta el momento del dia dicho antes`() {
+        val afternoon = UserIntent.SetAlarm(TimeSpec.MissingHour(DayPeriod.AFTERNOON), AlarmDay.TOMORROW)
+        assertEquals(
+            UserIntent.SetAlarm(TimeSpec.Exact(17, 0), AlarmDay.TOMORROW),
+            parser.completeSlot(afternoon, Slot.TIME, "a las cinco"),
+        )
+    }
+
+    @Test
+    fun `completa el contacto y el texto del mensaje`() {
+        val noContact = UserIntent.Call(ContactTarget.NotFound(null))
+        assertEquals(
+            UserIntent.Call(ContactTarget.Resolved(pedro)),
+            parser.completeSlot(noContact, Slot.CONTACT, "a Pedro", contacts),
+        )
+        val noText = UserIntent.SendMessage(ContactTarget.Resolved(maria))
+        assertEquals(
+            UserIntent.SendMessage(ContactTarget.Resolved(maria), "Llego a las seis, ¿ya?"),
+            parser.completeSlot(noText, Slot.MESSAGE_TEXT, "llego a las seis, ¿ya?"),
+        )
     }
 
     @Test

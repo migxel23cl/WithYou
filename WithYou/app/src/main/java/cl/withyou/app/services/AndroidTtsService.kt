@@ -1,6 +1,7 @@
 package cl.withyou.app.services
 
 import android.content.Context
+import android.os.Bundle
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
 import android.util.Log
@@ -19,7 +20,7 @@ class AndroidTtsService(context: Context) : TtsService, TextToSpeech.OnInitListe
     override val isSpeaking: StateFlow<Boolean> = _isSpeaking.asStateFlow()
 
     private var ready = false
-    private var pending: String? = null
+    private var pending: Pair<String, Float>? = null
     private val tts = TextToSpeech(context.applicationContext, this)
 
     override fun onInit(status: Int) {
@@ -32,16 +33,17 @@ class AndroidTtsService(context: Context) : TtsService, TextToSpeech.OnInitListe
         tts.setSpeechRate(SPEECH_RATE)
         tts.setOnUtteranceProgressListener(progressListener)
         ready = true
-        pending?.let(::speak)
+        pending?.let { (text, volume) -> speak(text, volume) }
         pending = null
     }
 
-    override fun speak(text: String) {
+    override fun speak(text: String, volume: Float) {
         if (!ready) {
-            pending = text
+            pending = text to volume
             return
         }
-        tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, UTTERANCE_ID)
+        val params = Bundle().apply { putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, volume.coerceIn(0f, 1f)) }
+        tts.speak(text, TextToSpeech.QUEUE_FLUSH, params, UTTERANCE_ID)
     }
 
     override fun stop() {

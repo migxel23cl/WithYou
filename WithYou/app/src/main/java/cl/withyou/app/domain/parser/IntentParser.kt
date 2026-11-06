@@ -1,9 +1,12 @@
 package cl.withyou.app.domain.parser
 
+import cl.withyou.app.domain.model.AlarmDay
 import cl.withyou.app.domain.model.Candidate
 import cl.withyou.app.domain.model.Contact
 import cl.withyou.app.domain.model.ContactTarget
 import cl.withyou.app.domain.model.ParseResult
+import cl.withyou.app.domain.model.Slot
+import cl.withyou.app.domain.model.TimeSpec
 import cl.withyou.app.domain.model.UserIntent
 import cl.withyou.app.domain.model.VolumeDirection
 
@@ -43,6 +46,52 @@ class IntentParser(
             }
         }
         return ParseResult(normalized, rank(candidates))
+    }
+
+    /**
+     * Completa el dato que faltaba en [intent] con la respuesta del usuario
+     * (p. ej. "¿A qué hora?" → "a las ocho"). Devuelve null si la respuesta no trae ese dato.
+     */
+    fun completeSlot(
+        intent: UserIntent,
+        slot: Slot,
+        text: String,
+        contacts: List<Contact> = emptyList(),
+    ): UserIntent? {
+        val tokens = TextNormalizer.tokenize(text)
+        if (tokens.isEmpty()) return null
+        return when {
+            slot == Slot.TIME && intent is UserIntent.SetAlarm -> {
+                val answer = timeExtractor.extract(tokens.map { it.normalized })
+                if (!answer.hasTime) return null
+                intent.copy(
+                    time = mergeTime(intent.time, answer.time),
+                    day = if (answer.day != AlarmDay.UNSPECIFIED) answer.day else intent.day,
+                )
+            }
+            slot == Slot.CONTACT -> {
+                val target = resolveTarget(tokens, contacts)
+                if (target is ContactTarget.NotFound && target.spokenName == null) return null
+                when (intent) {
+                    is UserIntent.Call -> intent.copy(target = target)
+                    is UserIntent.SendMessage -> intent.copy(target = target)
+                    else -> null
+                }
+            }
+            slot == Slot.MESSAGE_TEXT && intent is UserIntent.SendMessage ->
+                intent.copy(text = originalText(tokens, 0))
+            else -> null
+        }
+    }
+
+    /** "Alarma en la tarde" + "a las cinco" → 17:00. */
+    private fun mergeTime(previous: TimeSpec, answer: TimeSpec): TimeSpec {
+        val period = (previous as? TimeSpec.MissingHour)?.period
+        return if (answer is TimeSpec.MissingPeriod && period != null) {
+            TimeSpec.Exact(period.to24h(answer.hour), answer.minute)
+        } else {
+            answer
+        }
     }
 
     /** Devuelve true si la frase es solo una cancelación y no hay que buscar otras intenciones. */

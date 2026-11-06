@@ -7,8 +7,11 @@ interface TtsService {
 
     val isSpeaking: StateFlow<Boolean>
 
-    /** Dice [text], interrumpiendo lo que se estuviera diciendo. */
-    fun speak(text: String)
+    /**
+     * Dice [text], interrumpiendo lo que se estuviera diciendo. [volume] va de 0 a 1 y es relativo
+     * al volumen del teléfono (preferencia "volumen de voz", RF-12).
+     */
+    fun speak(text: String, volume: Float = 1f)
 
     fun stop()
 }

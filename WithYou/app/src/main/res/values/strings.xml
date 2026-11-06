@@ -54,8 +54,6 @@
     <string name="volume_at_min">El volumen ya está al mínimo. No lo bajo más para que puedas seguir escuchándome.</string>
     <string name="action_failed">No pude hacerlo. Intenta de nuevo, por favor.</string>
     <string name="not_understood">No te entendí bien. Puedes decir, por ejemplo: «¿qué hora es?» o «enciende la linterna».</string>
-    <string name="did_you_mean">No estoy seguro de haberte entendido. ¿Quisiste decir %1$s? Intenta decirlo de nuevo.</string>
-    <string name="options_separator">" o "</string>
     <string name="coming_soon_intent">Entendí que quieres %1$s. Esta función estará disponible pronto.</string>
     <string name="nothing_to_confirm">No hay nada pendiente por confirmar. ¿En qué puedo ayudarte?</string>
     <string name="speech_error_no_speech">No alcancé a escucharte. Toca el micrófono y habla de nuevo.</string>
@@ -65,9 +63,120 @@
     <string name="speech_error_unavailable">Este teléfono no tiene reconocimiento de voz disponible. Instala o actualiza la aplicación de Google.</string>
     <string name="speech_error_other">Algo salió mal al escucharte. Intenta de nuevo.</string>
 
+    <!-- Pantalla Confirmar (CU-08, RF-10) -->
+    <string name="confirm_detected">Comando detectado</string>
+    <string name="confirm_alarm_title">¿Poner una alarma?</string>
+    <string name="confirm_alarm_question">Voy a poner una alarma %1$s. ¿Confirmas?</string>
+    <string name="confirm_alarm_button">Sí, poner alarma</string>
+    <string name="confirm_call_title">¿Llamar a %1$s?</string>
+    <string name="confirm_call_question">Voy a llamar a %1$s. ¿Confirmas?</string>
+    <string name="confirm_call_button">Sí, llamar</string>
+    <string name="confirm_message_title">¿Enviar un mensaje a %1$s?</string>
+    <string name="confirm_message_question">Voy a enviarle a %1$s este mensaje: «%2$s». ¿Confirmas?</string>
+    <string name="confirm_message_button">Sí, enviar</string>
+    <string name="confirm_generic_question">Voy a %1$s. ¿Confirmas?</string>
+    <string name="confirm_generic_button">Sí, hacerlo</string>
+    <string name="quoted">«%1$s»</string>
+    <string name="button_cancel">Cancelar</string>
+    <string name="answer_by_voice">Responder con la voz</string>
+    <string name="answer_by_voice_stop">Escuchando. Toca para terminar</string>
+    <string name="answer_yes_or_no">No te entendí. Di «sí» o «no», o toca uno de los botones.</string>
+    <string name="cancelled">Listo, no hice nada. ¿En qué más puedo ayudarte?</string>
+
+    <!-- Pantalla Aclarar (CU-06, RF-04) -->
+    <string name="clarify_did_you_mean">No estoy seguro de haberte entendido. ¿Quisiste decir alguna de estas opciones?</string>
+    <string name="clarify_period">¿La alarma es en la mañana o en la noche?</string>
+    <string name="clarify_contact">Tienes varios contactos con ese nombre. ¿A cuál te refieres?</string>
+    <string name="clarify_contact_not_found">No encontré ese nombre en tus contactos. ¿Quisiste decir alguno de estos?</string>
+    <string name="clarify_spoken_option">%1$d: %2$s.</string>
+    <string name="clarify_spoken_hint">Toca una opción o dime su número.</string>
+    <string name="clarify_option_label">%1$d.  %2$s</string>
+    <string name="clarify_option_description">Opción %1$d: %2$s</string>
+    <string name="choose_an_option">No te entendí. Toca una de las opciones o dime su número, por ejemplo «la primera».</string>
+    <string name="try_again">Intentar de nuevo</string>
+
+    <!-- Datos que faltan -->
+    <string name="ask_slot_time">¿A qué hora quieres la alarma? Toca el micrófono y dime la hora.</string>
+    <string name="ask_slot_contact">¿A quién? Toca el micrófono y dime su nombre.</string>
+    <string name="ask_slot_message">¿Qué le quieres decir? Díctame el mensaje cuando el micrófono esté verde.</string>
+
+    <!-- Datos no válidos -->
+    <string name="rejected_invalid_time">Esa hora no existe. Intenta de nuevo, por ejemplo «a las ocho de la mañana».</string>
+    <string name="rejected_time_passed">Esa hora ya pasó hoy. Si la quieres para mañana, dime «mañana a las…».</string>
+    <string name="rejected_invalid_phone">El número de ese contacto no es válido. Revísalo en Contactos.</string>
+    <string name="rejected_message_too_long">El mensaje es muy largo. Intenta con uno más corto.</string>
+
+    <!-- Alarmas (RF-05) -->
+    <string name="alarm_at">a las %1$s %2$s</string>
+    <string name="alarm_at_one">a la %1$s %2$s</string>
+    <string name="alarm_moment">%1$s %2$s</string>
+    <string name="day_today">hoy</string>
+    <string name="day_tomorrow">mañana</string>
+    <string name="alarm_set">Listo, puse una alarma %1$s.</string>
+    <string name="alarm_not_supported">Este teléfono no tiene una aplicación de reloj para crear alarmas.</string>
+
+    <!-- Pantalla Resultado -->
+    <string name="result_speaking">Reproduciendo confirmación…</string>
+    <string name="result_returning">Volviendo al inicio en unos segundos…</string>
+    <string name="result_back_home">Volver al inicio</string>
+    <string name="title_confirm">Confirmar</string>
+    <string name="title_clarify">No entendí bien</string>
+    <string name="title_result">Listo</string>
+
+    <!-- Llamadas (RF-06) -->
+    <string name="calling">Llamando a %1$s…</string>
+    <string name="dialer_opened">Abrí el teléfono con el número de %1$s. Toca el botón verde para llamar.</string>
+    <string name="call_not_supported">Este teléfono no puede hacer llamadas.</string>
+    <string name="contact_not_found">No encontré a %1$s en tus contactos frecuentes. Puedes agregarlo en la sección Contactos.</string>
+    <string name="no_contacts">Todavía no tienes contactos frecuentes. Agrégalos en la sección Contactos.</string>
+    <string name="call_permission_title">Hacer llamadas</string>
+    <string name="call_permission_message">Para llamar a tus contactos cuando me lo pidas, necesito permiso para hacer llamadas. Siempre te preguntaré antes de llamar. Si no lo das, abriré el teléfono con el número listo y tendrás que tocar Llamar.</string>
+
+    <!-- Pantalla Contactos (CU-07, RF-11) -->
+    <string name="add_contact">Agregar contacto</string>
+    <string name="contacts_empty">Todavía no tienes contactos frecuentes. Toca «Agregar contacto» para agregar a tu familia o a quien llames seguido.</string>
+    <string name="contact_form_title_new">Nuevo contacto</string>
+    <string name="contact_form_title_edit">Editar contacto</string>
+    <string name="contact_name_hint">Nombre (por ejemplo: María o Hija)</string>
+    <string name="contact_phone_hint">Número de teléfono</string>
+    <string name="button_save">Guardar</string>
+    <string name="button_delete">Eliminar</string>
+    <string name="error_name_missing">Escribe un nombre con letras (máximo 40).</string>
+    <string name="error_phone_invalid">Revisa el número: debe tener entre 8 y 15 dígitos.</string>
+    <string name="contact_saved">Contacto guardado.</string>
+    <string name="contact_deleted">Contacto eliminado.</string>
+    <string name="delete_contact_title">¿Eliminar a %1$s?</string>
+    <string name="delete_contact_message">Ya no podrás llamarlo por voz. Puedes volver a agregarlo cuando quieras.</string>
+    <string name="call_contact_description">Llamar a %1$s</string>
+    <string name="edit_contact_description">%1$s, %2$s. Toca para editar</string>
+
+    <!-- Mensajes (RF-07, CU-03) -->
+    <string name="message_ready">Abrí Mensajes con tu texto para %1$s. Toca el botón de enviar para mandarlo.</string>
+    <string name="message_not_supported">Este teléfono no tiene una aplicación de mensajes.</string>
+    <string name="redictate_message">Corregir mensaje</string>
+    <string name="messages_question">¿A quién le escribes?</string>
+    <string name="dictate_message">Dictar mensaje</string>
+    <string name="dictate_message_choose_first">Primero toca el nombre de la persona a quien le escribes.</string>
+    <string name="dictate_message_stop">Escuchando. Toca para terminar</string>
+    <string name="messages_no_contacts">Primero agrega a tus contactos en la sección Contactos.</string>
+    <string name="go_to_contacts">Ir a Contactos</string>
+    <string name="select_contact_description">%1$s. Toca para elegir</string>
+    <string name="selected_contact_description">%1$s, elegido</string>
+
+    <!-- Pantalla Ajustes (RF-12, mockup 7) -->
+    <string name="settings_text_size">Tamaño del texto</string>
+    <string name="settings_text_preview">Así se verán los textos de la aplicación.</string>
+    <string name="settings_text_size_hint">El cambio se aplica a toda la aplicación al soltar el control.</string>
+    <string name="settings_voice_volume">Volumen de la voz</string>
+    <string name="settings_voice_volume_hint">Al soltar el control escucharás cómo suena.</string>
+    <string name="settings_voice_sample">Así se escuchará mi voz.</string>
+    <string name="settings_voice_feedback">Responder también con la voz</string>
+    <string name="settings_voice_feedback_hint">Si lo desactivas, las respuestas solo se mostrarán en la pantalla.</string>
+    <string name="settings_percent">%1$d %%</string>
+
     <!-- Descripción de intenciones (en infinitivo) -->
     <string name="intent_alarm">poner una alarma</string>
-    <string name="intent_alarm_at">poner una alarma a las %1$s</string>
+    <string name="intent_alarm_at">poner una alarma %1$s</string>
     <string name="intent_call">hacer una llamada</string>
     <string name="intent_call_to">llamar a %1$s</string>
     <string name="intent_message">enviar un mensaje</string>
@@ -81,8 +190,4 @@
     <string name="intent_unknown">hacer eso</string>
 
     <!-- Temporales -->
-    <string name="coming_soon">Esta función estará disponible pronto.</string>
-    <string name="placeholder_messages">Aquí podrás dictar mensajes a tus contactos.</string>
-    <string name="placeholder_contacts">Aquí podrás ver y agregar tus contactos frecuentes.</string>
-    <string name="placeholder_settings">Aquí podrás ajustar el tamaño del texto y el volumen de la voz.</string>
 </resources>

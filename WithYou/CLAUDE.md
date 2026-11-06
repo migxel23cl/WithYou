@@ -183,6 +183,19 @@ Todo a ≤ 2 niveles desde Inicio (RNF-02).
 7. Preferencias (DataStore) aplicadas a toda la UI y al TTS.
 8. Accesibilidad (TalkBack), cifrado, PIN, pruebas Espresso y medición del RNF-03.
 
+## 10.1 Estado actual
+
+Avance detallado (trazabilidad de requerimientos, pruebas, problemas y decisiones) en [`docs/avance-fase2.md`](docs/avance-fase2.md). **Actualizarlo al terminar cada paso.**
+
+- ✅ Pasos 1 a 7 (13 de 13 RF): hora, fecha, linterna, volumen, alarma, llamada y mensaje con confirmación (pantallas Confirmar, Aclarar y Resultado), contactos (Room + `ContactRepository`), Mensajes y Ajustes (DataStore + `PreferencesRepository`) funcionan en el teléfono.
+- 🧭 `AssistantViewModel` (en `ui/assistant/`) es el único ViewModel de la conversación; lo comparten Inicio, Confirmar, Aclarar y Resultado. `MainActivity` navega según `AssistantUiState.screen`.
+- ⏭️ Siguiente: paso 8, el último (TalkBack, cifrado SQLCipher + Keystore, PIN para Ajustes y Contactos, pruebas Espresso y medición del RNF-03). Meta: 20-11-2026.
+- 🔤 El tamaño de texto se aplica con `fontScale` en `MainActivity.attachBaseContext`; los textos deben usar `sp` y los contenedores crecer con el contenido (nada de alturas fijas con texto).
+- 📌 Mensajes: se mantiene `ACTION_SENDTO` (el usuario toca Enviar); el envío automático con `SmsManager` quedó como mejora futura en `docs/avance-fase2.md`.
+- 🧪 Pruebas instrumentadas: correr con `adb shell am instrument` (Gradle desinstala la app al terminar `connectedAndroidTest`).
+- 🌿 Git: una rama por paso (`feature/paso-N-...`), commits en español.
+- ⚠️ En Android Go el reconocimiento de voz requiere internet (no hay motor offline).
+
 ## 11. Convenciones
 
 - Código en inglés (clases y métodos); **textos de UI y voz en español** en `strings.xml` (nada hardcodeado).

@@ -13,4 +13,8 @@
     <dimen name="mic_icon_padding">44dp</dimen>
     <dimen name="quick_action_height">120dp</dimen>
     <dimen name="quick_action_icon">44dp</dimen>
+    <dimen name="big_button_height">72dp</dimen>
+    <dimen name="small_mic_size">96dp</dimen>
+    <dimen name="small_mic_icon_padding">24dp</dimen>
+    <dimen name="result_icon_size">128dp</dimen>
 </resources>
