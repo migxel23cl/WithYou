@@ -1,6 +1,6 @@
 # WithYou
 
-Aplicación Android que permite a las personas mayores usar su teléfono **hablándole con naturalidad**, en español de Chile. Con una instrucción como «pon una alarma para mañana a las ocho» o «llama a María», la app entiende lo que se pide, confirma las acciones importantes y responde **por voz y en pantalla al mismo tiempo**.
+Aplicación Android que permite a las personas mayores usar su teléfono **hablándole con naturalidad**, en español. Con una instrucción como «pon una alarma para mañana a las ocho» o «llama a María», la app entiende lo que se pide, confirma las acciones importantes y responde **por voz y en pantalla al mismo tiempo**.
 
 No es un asistente general: es una capa de accesibilidad enfocada en pocas tareas cotidianas, con confirmación de acciones críticas, tolerancia a errores y bajo consumo, pensada para funcionar en teléfonos de gama baja.
 
