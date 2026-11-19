@@ -1,11 +1,11 @@
 # Avance Fase 2 (Desarrollo) — Withyou
 
-> Última actualización: 06-11-2026 · Paso 7 completo y validado en el teléfono
+> Última actualización: 18-11-2026 · **Los 8 pasos del plan completos** y validados en el teléfono
 > Proyecto Capstone Duoc UC · Metodología Cascada · Equipo: Miguel Pereira (jefe de proyecto), Baltazar Ordoñez (voz e interpretación), José Luis Donoso (interfaz y accesibilidad), Joaquín Mendoza (pruebas y documentación técnica)
 
 ## 1. Resumen ejecutivo
 
-Se inició la Fase 2 siguiendo el diseño aprobado en la Fase 1 y el orden de trabajo definido en `CLAUDE.md` (MVP primero). Están completos los **pasos 1 a 7** del plan de desarrollo (de 8). Solo queda el paso 8 (accesibilidad, seguridad y pruebas finales).
+Se inició la Fase 2 siguiendo el diseño aprobado en la Fase 1 y el orden de trabajo definido en `CLAUDE.md` (MVP primero). Están completos **los 8 pasos** del plan de desarrollo: la aplicación cumple los 13 requerimientos funcionales y los 8 no funcionales, y se agregó la importación de contactos desde la agenda del teléfono.
 
 La aplicación funciona de punta a punta en un teléfono real (Samsung Galaxy J2 Core, Android 8.1 Go, 1 GB de RAM):
 
@@ -13,11 +13,14 @@ La aplicación funciona de punta a punta en un teléfono real (Samsung Galaxy J2
 2. La app reconoce la instrucción, la interpreta y la ejecuta.
 3. La app responde **por voz y en pantalla al mismo tiempo**.
 
-Funciones operativas: consultar la hora y la fecha, encender y apagar la linterna, subir y bajar el volumen, **crear alarmas por voz con confirmación** (pantallas Confirmar, Aclarar y Resultado), **registrar contactos frecuentes**, **llamarlos** y **enviarles mensajes dictados**, siempre con confirmación, y **ajustar el tamaño del texto, el volumen de la voz y la respuesta por voz**.
+Funciones operativas: consultar la hora y la fecha, encender y apagar la linterna, subir y bajar el volumen, **crear alarmas por voz con confirmación** (pantallas Confirmar, Aclarar y Resultado), **registrar contactos frecuentes**, **llamarlos** y **enviarles mensajes dictados**, siempre con confirmación, **ajustar el tamaño del texto, el volumen de la voz y la respuesta por voz**, y **agregar contactos desde la agenda del teléfono**. Los contactos se guardan cifrados y el cuidador puede proteger Ajustes y Contactos con un PIN.
 
 | Indicador | Valor |
 |---|---|
-| Pruebas automatizadas | 130 unitarias + 6 instrumentadas en el teléfono, todas aprobadas |
+| Pruebas automatizadas | 146 unitarias + 18 instrumentadas en el teléfono (8 de interfaz con Espresso), todas aprobadas |
+| Requerimientos no funcionales | 8 de 8 cumplidos |
+| Tiempo de respuesta (RNF-03) | 424 ms en promedio y 572 ms en el peor caso desde la última palabra (meta ≤ 3 s) |
+| Memoria (RNF-04) | 38 MB en uso (4,4 % de la RAM del teléfono de 1 GB) |
 | Requerimientos funcionales | 13 de 13 completos |
 | Casos de uso operativos | 8 de 8 |
 | Control de versiones | Git, una rama por paso |
@@ -75,7 +78,6 @@ Las dependencias van siempre hacia abajo: la View conoce al ViewModel y el ViewM
 | Carpeta / archivo | Capa | Contenido |
 |---|---|---|
 | `ui/MainActivity.kt` | View | Ventana principal: barra superior, barra de navegación inferior y contenedor de pantallas |
-| `ui/PlaceholderFragment.kt` | View | Pantalla temporal para Mensajes, Contactos y Ajustes |
 | `ui/home/HomeFragment.kt` | View | Dibuja Inicio según el estado; pide el permiso del micrófono con explicación previa |
 | `ui/confirm/ConfirmFragment.kt` | View | Pantalla Confirmar: "Sí, …" (verde) y "Cancelar" (rojo), o sí/no por voz |
 | `ui/clarify/ClarifyFragment.kt` | View | Pantalla "No entendí bien": hasta 3 opciones, "Intentar de nuevo" y "Cancelar" |
@@ -88,22 +90,26 @@ Las dependencias van siempre hacia abajo: la View conoce al ViewModel y el ViewM
 | `domain/model/` | Model | `UserIntent`, `Decision`, `ParseResult`, `TimeSpec`, `Contact`, `AccessibilityPreferences` (con los rangos seguros de texto y voz) |
 | `domain/parser/` | Model | `TextNormalizer`, `NumberWords`, `TimeExtractor`, `StringSimilarity`, `ContactMatcher`, `IntentParser`, `ChoiceParser` |
 | `domain/processor/` | Model | `CommandProcessor` |
-| `domain/validation/` | Model | `ContactValidator`: limpia y valida nombres y teléfonos (lo usan el formulario y el `CommandProcessor`) |
-| `data/local/` | Model | `AppDatabase` (Room), `ContactEntity`, `ContactDao`. Esquema exportado en `app/schemas/` |
+| `domain/validation/` | Model | `ContactValidator`: limpia y valida nombres y teléfonos (lo usan el formulario, la importación y el `CommandProcessor`) |
+| `domain/security/` | Model | `PinHasher` y `PinPolicy`: el PIN se guarda como hash PBKDF2 con sal aleatoria, nunca el PIN mismo |
+| `data/local/` | Model | `AppDatabase` (Room **cifrado con SQLCipher**), `DatabasePassphrase` (clave protegida por el Android Keystore), `ContactEntity`, `ContactDao`. Esquema exportado en `app/schemas/` |
 | `data/repository/` | Model | `ContactRepository` (interfaz) y `RoomContactRepository`: entrega contactos del dominio, no entidades de Room |
-| `data/prefs/` | Model | `PreferencesRepository` (interfaz) y `DataStorePreferencesRepository`: tamaño de texto, volumen de voz y respuesta por voz |
-| `ui/contacts/` | View + ViewModel | `ContactsFragment` y `ContactsAdapter` (View), `ContactsViewModel` (valida y guarda mediante el Repository) |
+| `data/prefs/` | Model | `PreferencesRepository` (tamaño de texto, volumen de voz y respuesta por voz) y `PinRepository` (hash del PIN del cuidador), ambos con DataStore |
+| `ui/contacts/` | View + ViewModel | `ContactsFragment` y `ContactsAdapter` (View), `ContactsViewModel` (valida, guarda e importa desde la agenda mediante el Repository) |
 | `ui/messages/` | View + ViewModel | `MessagesFragment` y `RecipientAdapter` (View), `MessagesViewModel` (contacto elegido como destinatario) |
 | `ui/MicPermissionRequester.kt`, `ui/TabNavigation.kt` | View | Permiso del micrófono con explicación previa y navegación entre pestañas, compartidos por Inicio y Mensajes |
 | `ui/settings/` | View + ViewModel | `SettingsFragment` (View) y `SettingsViewModel` (guarda mediante el Repository; lo comparte con `MainActivity`) |
-| `services/` | Model | Interfaces `SpeechService`, `TtsService`, `ActionExecutor` y sus implementaciones `Android*` |
+| `ui/security/` | View + ViewModel | `SecurityViewModel` (PIN del cuidador: bloqueado, desbloqueado, crear, cambiar, quitar) y `PinDialogs` (View) |
+| `ui/AppDialog.kt` | View | Diálogo responsive de toda la app: título, mensaje y campos se desplazan; los botones quedan siempre visibles abajo |
+| `services/` | Model | Interfaces `SpeechService`, `TtsService`, `ActionExecutor`, `PhoneContactReader` y sus implementaciones `Android*` |
 | `di/AppContainer.kt` | Infraestructura | Crea una sola vez la base de datos, el repositorio, el parser, el procesador y los servicios |
 | `WithYouApp.kt` | Infraestructura | Clase `Application`; crea el `AppContainer` |
-| `res/layout/` | View | `activity_main.xml`, `fragment_home.xml`, `fragment_confirm.xml`, `fragment_clarify.xml`, `fragment_result.xml`, `fragment_contacts.xml`, `item_contact.xml`, `dialog_contact_form.xml`, `fragment_messages.xml`, `item_recipient.xml`, `fragment_settings.xml` |
+| `res/layout/` | View | `activity_main.xml`, `fragment_home.xml`, `fragment_confirm.xml`, `fragment_clarify.xml`, `fragment_result.xml`, `fragment_contacts.xml`, `item_contact.xml`, `dialog_contact_form.xml`, `fragment_messages.xml`, `item_recipient.xml`, `fragment_settings.xml`, `dialog_app.xml`, `dialog_pin.xml` |
 | `res/values/` | View | `strings.xml` (todos los textos en español), `colors.xml`, `dimens.xml`, `themes.xml` |
 | `res/drawable/`, `res/menu/`, `res/navigation/` | View | Íconos, barra inferior y mapa de navegación |
-| `AndroidManifest.xml` | View | Permisos (`RECORD_AUDIO`, `SET_ALARM` y `CALL_PHONE`) y visibilidad del reconocedor, del motor de voz, del reloj, del teléfono y de la app de mensajes |
-| `app/src/test/` | Pruebas | Una clase de prueba por componente del Model y del ViewModel |
+| `AndroidManifest.xml` | View | Permisos (`RECORD_AUDIO`, `SET_ALARM` y `CALL_PHONE`) y visibilidad del reconocedor, del motor de voz, del reloj, del teléfono, de la app de mensajes y de la agenda. **No usa `READ_CONTACTS`** |
+| `app/src/test/` | Pruebas | Una clase de prueba por componente del Model y del ViewModel (JUnit) |
+| `app/src/androidTest/` | Pruebas | Pruebas en el teléfono: Room, DataStore, cifrado e interfaz con Espresso y el verificador de accesibilidad |
 
 ## 5. Módulos desarrollados
 
@@ -126,6 +132,7 @@ Las dependencias van siempre hacia abajo: la View conoce al ViewModel y el ViewM
 | `AndroidSpeechService` | Voz a texto con `SpeechRecognizer` en es-CL; hasta 3 transcripciones alternativas y resultados parciales. En equipos Android Go usa modo en línea; si el modo sin conexión falla, reintenta en línea automáticamente |
 | `AndroidTtsService` | Texto a voz con `TextToSpeech` en español (es-CL con alternativas de respaldo), a velocidad 0,9 |
 | `AndroidActionExecutor` | Linterna con `CameraManager` (sin permiso de cámara), volumen con `AudioManager` (sin bajarlo a cero), alarmas con `AlarmClock.ACTION_SET_ALARM` en el reloj del sistema (suenan aunque Withyou esté cerrada), llamadas con `ACTION_CALL` (o `ACTION_DIAL` sin permiso) y mensajes con `ACTION_SENDTO`, que abre la app de Mensajes con el texto listo |
+| `AndroidPhoneContactReader` | Lee el número elegido en la agenda del teléfono. Sin permiso `READ_CONTACTS`: Android da acceso solo al contacto elegido |
 
 ### 5.3 Interfaz (`ui/`, `res/`)
 
@@ -143,6 +150,9 @@ Las dependencias van siempre hacia abajo: la View conoce al ViewModel y el ViewM
 - **Navegación** con Navigation Component: Inicio, Mensajes, Contactos y Ajustes, todas a un nivel desde Inicio.
 - **Estilo:** paleta del mockup (`#1F4E8C`, `#E6F1FB`, `#CFE5F7`, `#1E9E57`, `#D32F2F`), texto base de 20sp, títulos de 28sp y elementos táctiles de 56dp o más.
 - **Permiso de micrófono:** diálogo previo en lenguaje simple; si se deniega de forma permanente, ofrece abrir los Ajustes del teléfono.
+- **Agregar desde mis contactos:** en Contactos, abre la agenda del teléfono; se elige una persona y queda en frecuentes. No duplica números y valida igual que el formulario.
+- **PIN del cuidador** (§8): en Ajustes se crea, cambia o quita (se escribe dos veces). Con PIN, Ajustes muestra "Ajustes protegidos" y agregar, editar o eliminar contactos lo pide. Ver y llamar a un contacto, y todo lo que se hace por voz, sigue sin PIN. Se vuelve a bloquear al salir de la pantalla.
+- **Diseño responsive:** en Confirmar y Aclarar los botones quedan fijos abajo y solo el texto se desplaza; todos los diálogos usan `AppDialog`, con los botones siempre visibles. Comprobado con texto al 160 % en una pantalla de 540×960 y con el teclado abierto.
 
 ## 6. Trazabilidad de requerimientos
 
@@ -170,12 +180,12 @@ Las dependencias van siempre hacia abajo: la View conoce al ViewModel y el ViewM
 |---|---|---|---|
 | RNF-01 | Texto ≥ 18sp, táctiles ≥ 56dp | ✅ Aplicado | `dimens.xml`; además el usuario puede agrandar todo el texto hasta 160 % (RF-12) |
 | RNF-02 | Máximo 2 niveles de navegación | ✅ Aplicado | Todas las secciones a un nivel desde Inicio |
-| RNF-03 | Respuesta ≤ 3 s | 🟡 Instrumentado | Latencia registrada en Logcat (`WithYou.Home`); falta la medición formal |
-| RNF-04 | Estable con 1–1,5 GB de RAM | 🟡 En validación | Funciona en Samsung J2 Core de 1 GB; falta prueba prolongada |
-| RNF-05 | Datos cifrados | ⬜ Pendiente | Paso 8 |
-| RNF-06 | Permisos mínimos con explicación | ✅ Aplicado | `RECORD_AUDIO` y `CALL_PHONE` se piden con un diálogo explicativo previo; si se niega el de llamadas, igual se puede llamar con `ACTION_DIAL` |
+| RNF-03 | Respuesta ≤ 3 s | ✅ Cumplido | 10 frases medidas en el teléfono: 424 ms en promedio y 572 ms en el peor caso desde la última palabra (ver 7.3) |
+| RNF-04 | Estable con 1–1,5 GB de RAM | ✅ Cumplido | Samsung J2 Core de 1 GB: 38 MB en uso (4,4 % de la RAM); sin cierres en todas las pruebas |
+| RNF-05 | Datos cifrados | ✅ Cumplido | Room con SQLCipher (AES-256), clave protegida por el Android Keystore; el PIN se guarda como hash PBKDF2. Comprobado en el teléfono: el archivo no muestra nombres ni números |
+| RNF-06 | Permisos mínimos con explicación | ✅ Aplicado | `RECORD_AUDIO` y `CALL_PHONE` se piden con un diálogo explicativo previo; si se niega el de llamadas, igual se puede llamar con `ACTION_DIAL`. Importar contactos y enviar mensajes no requieren permisos |
 | RNF-07 | Sin fallos silenciosos | ✅ Aplicado | Toda decisión produce respuesta; vigilante de 10 s evita esperas infinitas |
-| RNF-08 | Compatible con TalkBack | 🟡 Parcial | `contentDescription`, región en vivo y encabezados accesibles; falta probar con TalkBack |
+| RNF-08 | Compatible con TalkBack | ✅ Cumplido | `contentDescription`, regiones en vivo y encabezados; las pruebas Espresso pasan el verificador de accesibilidad de Google (nombres para TalkBack, tamaño táctil y contraste) |
 
 ### Casos de uso
 
@@ -203,12 +213,14 @@ Las dependencias van siempre hacia abajo: la View conoce al ViewModel y el ViewM
 | `ChoiceParserTest` | Elegir opciones por voz ("la primera", "de la noche") | 3 |
 | `CommandProcessorTest` | Confirmación, aclaración, validación de hora y teléfono, flujo completo | 20 |
 | `ContactValidatorTest` | Teléfonos y nombres válidos e inválidos | 3 |
-| `ContactsViewModelTest` | Guardar, validar, editar y eliminar contactos con un repositorio en memoria | 4 |
+| `ContactsViewModelTest` | Guardar, validar, editar y eliminar contactos; importar desde la agenda (duplicados, números y nombres inválidos) | 9 |
 | `MessagesViewModelTest` | Elegir destinatario y qué pasa si se elimina | 3 |
 | `AccessibilityPreferencesTest` | Rangos seguros de texto y voz, valores por defecto | 3 |
 | `SettingsViewModelTest` | Guardar cada preferencia, límites, muestra de voz con el volumen elegido | 5 |
-| `AssistantViewModelTest` | Conversación completa con servicios simulados: confirmar, cancelar, aclarar, pedir datos, resultado, llamadas, mensajes, volumen y voz desactivada, errores y tiempos de espera | 63 |
-| **Total** | | **130, todas aprobadas** |
+| `PinHasherTest` | PIN correcto e incorrecto, sal distinta cada vez, datos dañados, 4 dígitos | 4 |
+| `SecurityViewModelTest` | Crear, bloquear, desbloquear, cambiar y quitar el PIN | 6 |
+| `AssistantViewModelTest` | Conversación completa con servicios simulados: confirmar, cancelar, aclarar, pedir datos, resultado, llamadas, mensajes, volumen y voz desactivada, errores, tiempos de espera y medición de latencia | 63 |
+| **Total** | | **146, todas aprobadas** |
 
 ### 7.1.1 Pruebas instrumentadas (en el teléfono)
 
@@ -216,6 +228,12 @@ Las dependencias van siempre hacia abajo: la View conoce al ViewModel y el ViewM
 |---|---|---|
 | `ContactRepositoryTest` | Room real (SQLite en memoria): guardar, ordenar por nombre, editar sin duplicar y eliminar | 3 |
 | `PreferencesRepositoryTest` | DataStore real en un archivo temporal: valores por defecto, guardar y leer, límites | 3 |
+| `EncryptedDatabaseTest` | Cifrado: el archivo no tiene cabecera SQLite ni muestra nombres o números; otra clave no lo abre; la clave del Keystore se recupera | 4 |
+| `AppUiTest` (Espresso) | Inicio, las 4 pestañas, formulario con errores, confirmar y cancelar una llamada, diálogos con botones completos | 6 |
+| `ResponsiveUiTest` (Espresso) | Con texto al 160 % en 540×960: botones de Confirmar y de los diálogos completos | 2 |
+| **Total** | | **18, todas aprobadas** |
+
+Las pruebas Espresso corren con el **verificador de accesibilidad de Google** (`espresso-accessibility`) activo en cada acción. Quitan el PIN del cuidador durante la prueba y lo restauran al terminar (`WithoutPinRule`).
 
 Se ejecutan con `adb shell am instrument` para no desinstalar la app del teléfono (Gradle la desinstala al terminar `connectedAndroidTest`).
 
@@ -225,7 +243,36 @@ Ejecución: `.\gradlew.bat testDebugUnitTest`
 
 ### 7.2 Pruebas en dispositivo real
 
-Samsung Galaxy J2 Core (SM-J260M), Android 8.1 Go, 1 GB de RAM (representa al público objetivo del RNF-04). Hora, fecha, linterna, volumen, **alarmas** y **llamadas** con confirmación operan correctamente por voz. Las alarmas quedan creadas en la app Reloj de Samsung. La llamada se inicia correctamente; el teléfono de prueba no tiene chip, por lo que el sistema muestra "sin red móvil", lo que confirma que la app entregó la llamada al sistema. Los **mensajes** dictados llegan a la app de Mensajes con el destinatario y el texto correctos; el usuario toca Enviar. Las **preferencias** (tamaño de texto, volumen de voz y respuesta por voz) se aplican y se mantienen al cerrar la app.
+Samsung Galaxy J2 Core (SM-J260M), Android 8.1 Go, 1 GB de RAM (representa al público objetivo del RNF-04). Hora, fecha, linterna, volumen, **alarmas** y **llamadas** con confirmación operan correctamente por voz. Las alarmas quedan creadas en la app Reloj de Samsung. La llamada se inicia correctamente; el teléfono de prueba no tiene chip, por lo que el sistema muestra "sin red móvil", lo que confirma que la app entregó la llamada al sistema. Los **mensajes** dictados llegan a la app de Mensajes con el destinatario y el texto correctos; el usuario toca Enviar. Las **preferencias** (tamaño de texto, volumen de voz y respuesta por voz) se aplican y se mantienen al cerrar la app. El **PIN** protege Ajustes y los cambios en Contactos, y **agregar desde la agenda** trae el contacto elegido.
+
+### 7.3 Mediciones en el teléfono (RNF-03 y RNF-04)
+
+**Tiempo de respuesta**, 10 frases por voz (Samsung J2 Core, Android 8.1 Go, 1 GB de RAM, por internet). Registro original en `docs/evidencia-rnf03-latencias.log`.
+
+| # | Frase | Desde la última palabra | Desde "fin del habla" (Google) | Total desde tocar el micrófono |
+|---|---|---|---|---|
+| 1 | ¿Qué hora es? | — * | 131 ms | 2.757 ms |
+| 2 | ¿Qué día es hoy? | 64 ms | 101 ms | 2.886 ms |
+| 3 | Enciende la linterna | 481 ms | 82 ms | 2.809 ms |
+| 4 | Apaga la linterna | 479 ms | 77 ms | 2.668 ms |
+| 5 | Sube el volumen | 572 ms | 142 ms | 2.846 ms |
+| 6 | Baja el volumen | 366 ms | 128 ms | 2.579 ms |
+| 7 | ¿Qué hora es? | 399 ms | 132 ms | 2.627 ms |
+| 8 | Pon una alarma para mañana a las ocho de la mañana | 548 ms | 92 ms | 4.512 ms ** |
+| 9 | ¿Qué día es hoy? | 498 ms | 95 ms | 2.615 ms |
+| 10 | Enciende la linterna | 408 ms | 73 ms | 2.582 ms |
+
+| Medición | Promedio | Peor caso | Meta |
+|---|---|---|---|
+| **Desde la última palabra hasta la respuesta** (lo que espera el usuario) | **424 ms** | **572 ms** | ≤ 3.000 ms ✅ |
+| Desde el "fin del habla" de Google (trabajo propio de la app) | 105 ms | 142 ms | — |
+| Total desde que se toca el micrófono (incluye lo que se demora en hablar) | 2.888 ms | 4.512 ms | — |
+
+\* El reconocedor entregó el texto sin resultados parciales previos. \*\* Frase larga: el total incluye unos 3 s que toma decirla.
+
+**Cómo se midió:** la app registra tres momentos: cuando se toca el micrófono, cuando llega la última palabra reconocida y cuando el reconocedor de Google avisa el fin del habla (lo hace después de esperar un silencio, por eso subestima la espera). La última palabra reconocida llega una fracción de segundo después de dicha, así que la espera real puede ser algo mayor que 0,4 s, pero queda muy por debajo de 3 s.
+
+**Memoria:** 38 MB (PSS) con la app recién usada, de 880 MB de RAM del teléfono (4,4 %).
 
 ## 8. Problemas encontrados y soluciones
 
@@ -235,6 +282,11 @@ Samsung Galaxy J2 Core (SM-J260M), Android 8.1 Go, 1 GB de RAM (representa al p�
 | 2 | La app quedaba indefinidamente en "Te escucho…" | El reintento reutilizaba el mismo reconocedor y el cierre de la sesión fallida cancelaba la nueva | Reconocedor nuevo en cada reintento, más un vigilante de 10 s que siempre entrega una respuesta (RNF-07) |
 | 3 | La app no respondía por voz | El motor de texto a voz de Google estaba desactivado en el teléfono | Se activó en Ajustes. Queda como requisito de instalación |
 | 4 | En "No entendí bien" no había cómo cancelar (solo "Intentar de nuevo") | Error de diseño: la salida dependía de la flecha de volver, poco evidente para un adulto mayor | Botón rojo "Cancelar" también en esa pantalla (detectado en la prueba en el teléfono) |
+| 5 | En Confirmar, "Cancelar" quedaba medio cortado en una pantalla de 540×960 | El contenido medía ~548 dp y la pantalla disponible 504 dp | Botones fijos abajo y solo el texto se desplaza (detectado con Espresso) |
+| 6 | En los diálogos los botones se apilaban y "Cancelar" o "Guardar" quedaban fuera; al crear el PIN no aparecían el segundo campo ni los botones | El diálogo estándar de Android no se adapta a letra grande en pantallas pequeñas | `AppDialog` propio: contenido desplazable y botones siempre visibles; se usa en todos los diálogos (detectado con Espresso y por el equipo) |
+| 7 | El error del teléfono quedaba fuera de la vista del formulario; la indicación "Nombre (por…" se cortaba; errores en letra de 12 sp | Formulario sin desplazamiento automático y estilos estándar de Material | El formulario se desplaza hasta el error; indicación corta y ayudas y errores de 18 sp (RNF-01) |
+| 8 | La lista vacía de contactos era un elemento sin nombre para TalkBack | La lista seguía visible aunque no tuviera elementos | Se oculta cuando está vacía (detectado por el verificador de accesibilidad) |
+| 9 | La primera medición del RNF-03 daba ~100 ms y faltaban 3 de 10 frases | Se medía desde el "fin del habla" de Google, que llega después de un silencio; el registro del teléfono (256 KB) borró las primeras frases | Medición desde tres momentos y registro guardado en el computador durante la prueba |
 
 ## 9. Decisiones técnicas
 
@@ -265,17 +317,28 @@ Samsung Galaxy J2 Core (SM-J260M), Android 8.1 Go, 1 GB de RAM (representa al p�
 | Tamaño de texto con `fontScale` en `MainActivity`, leído al iniciar | Android exige definirlo antes de dibujar cualquier vista (antes de que existan los ViewModels); al cambiarlo la Activity se redibuja y conserva la pantalla |
 | Volumen de la voz por frase (`KEY_PARAM_VOLUME` de TextToSpeech) | Cambia solo la voz de la app, no el volumen general del teléfono |
 | Desactivar la respuesta por voz no oculta nada en pantalla | La información siempre se muestra; RF-13 se cumple por defecto y el usuario puede preferir solo pantalla |
+| SQLCipher para cifrar Room, con clave aleatoria protegida por el Android Keystore | Lo indica el §8 del diseño; la clave nunca queda en el código ni en un archivo sin proteger. Costo: la app pasa de ~7 MB a ~27 MB (código nativo para 4 procesadores; con App Bundle cada teléfono descarga solo el suyo) |
+| Al instalar la versión cifrada se elimina la base antigua sin cifrar | No puede quedar ningún dato personal en texto plano; los contactos de prueba se volvieron a agregar (acordado con el equipo) |
+| PIN solo para Ajustes y cambios en Contactos; ver y llamar siguen libres | El §8 busca evitar cambios accidentales, no impedir que el adulto mayor use la app |
+| PIN guardado como hash PBKDF2 con sal, se bloquea al salir de la pantalla | Aunque se lea el archivo no se obtiene el PIN; no queda desbloqueado por olvido |
+| Todos los diálogos con `AppDialog` (botones fijos abajo) | Diseño responsive: funciona en pantallas pequeñas, con texto al 160 % y con teclado abierto |
+| Agregar contactos eligiendo en la agenda (sin `READ_CONTACTS`) en vez de importar todos | Decidido con el equipo (18-11-2026): no requiere permisos (RNF-06) y mantiene la lista corta de frecuentes |
 
 ## 10. Supuestos y limitaciones
 
 - **Android Go requiere internet para reconocer voz.** El sistema no permite descargar el idioma para uso sin conexión. La síntesis de voz sí funciona sin conexión. Alternativa evaluable: reconocedor incluido en la app (p. ej. Vosk, ~40 MB, vocabulario restringido), que implica cambiar el stack y requiere una prueba de concepto midiendo RAM, latencia y precisión.
 - **Motor de voz:** el dispositivo debe tener activo "Servicios de voz de Google".
 - **Alarmas:** `AlarmClock` programa la alarma para la próxima vez que llegue esa hora; "mañana a las 8" dicho a las 7:00 sonaría el mismo día. Pendiente de definir con el equipo.
+- **PIN olvidado:** no hay forma de recuperarlo desde la app; el cuidador debe borrar los datos de Withyou desde los Ajustes del teléfono (se pierden también los contactos frecuentes).
+- **Historial de comandos:** el diseño mencionaba guardarlo (`CommandLogEntity`), pero ningún requerimiento lo exige y no se implementó, para no almacenar datos personales sin necesidad.
 
 ## 11. Trabajo pendiente
 
-1. **Paso 8:** prueba con TalkBack, cifrado (SQLCipher + Android Keystore), PIN para Ajustes y Contactos, pruebas Espresso y medición formal del RNF-03.
-2. **Gestión:** publicar el repositorio en GitHub. Git ya está en uso localmente: `main` más una rama por paso (`feature/paso-4-…` a `feature/paso-7-preferencias`).
+Los 8 pasos del plan están completos. Queda:
+
+1. **Pruebas con usuarios** (semana 14 del plan): probar con adultos mayores reales la tasa de frases entendidas, para decidir si las reglas del `IntentParser` bastan (decisión abierta 7).
+2. **Prueba con TalkBack activado** por una persona, complementaria a la verificación automática de Espresso.
+3. **Gestión:** publicar el repositorio en GitHub. Git ya está en uso localmente: `main` más una rama por paso (`feature/paso-4-…` a `feature/paso-8-seguridad-accesibilidad` y `feature/importar-contactos-agenda`).
 
 ### Mejoras futuras (fuera del alcance del MVP)
 

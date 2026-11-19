@@ -1,141 +1,169 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<!-- Los botones "Sí" y "Cancelar" quedan fijos abajo: siempre visibles aunque el texto sea largo
+     o la pantalla pequeña (detectado con Espresso en un teléfono de 540x960). -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true">
+    android:orientation="vertical">
 
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="@dimen/screen_padding">
+        android:layout_height="0dp"
+        android:layout_weight="1">
 
-        <!-- Comando detectado -->
-        <com.google.android.material.card.MaterialCardView
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:cardBackgroundColor="@color/card"
-            app:cardCornerRadius="@dimen/card_radius"
-            app:cardElevation="2dp">
+            android:orientation="vertical"
+            android:paddingStart="@dimen/screen_padding"
+            android:paddingTop="@dimen/screen_padding"
+            android:paddingEnd="@dimen/screen_padding">
 
+            <!-- Comando detectado -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardBackgroundColor="@color/card"
+                app:cardCornerRadius="@dimen/card_radius"
+                app:cardElevation="2dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="@dimen/spacing">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/confirm_detected"
+                        android:textAppearance="@style/TextAppearance.WithYou.Body"
+                        android:textColor="@color/text_secondary" />
+
+                    <TextView
+                        android:id="@+id/confirm_title"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:accessibilityHeading="true"
+                        android:textAppearance="@style/TextAppearance.WithYou.Title" />
+
+                    <TextView
+                        android:id="@+id/confirm_detail"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:textAppearance="@style/TextAppearance.WithYou.Body"
+                        android:textSize="22sp" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Burbuja del asistente: se muestra y se dice a la vez (RF-13) -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing"
+                app:cardBackgroundColor="@color/card_accent"
+                app:cardCornerRadius="@dimen/card_radius"
+                app:cardElevation="0dp">
+
+                <TextView
+                    android:id="@+id/assistant_message"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:accessibilityLiveRegion="polite"
+                    android:padding="@dimen/spacing"
+                    android:textAppearance="@style/TextAppearance.WithYou.Body"
+                    android:textStyle="bold" />
+            </com.google.android.material.card.MaterialCardView>
+
+            <TextView
+                android:id="@+id/heard_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:textAppearance="@style/TextAppearance.WithYou.Body"
+                android:textColor="@color/text_secondary"
+                android:visibility="gone" />
+
+            <!-- Solo para mensajes: volver a dictar el texto (CU-03) -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/redictate_button"
+                style="@style/Widget.WithYou.OptionButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing"
+                android:gravity="center"
+                android:text="@string/redictate_message"
+                android:visibility="gone"
+                app:icon="@drawable/ic_mic"
+                app:iconGravity="textStart"
+                app:iconSize="28dp"
+                app:iconTint="@color/primary" />
+
+            <!-- También se puede responder "sí" o "no" por voz (CU-08) -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="@dimen/screen_padding">
+                android:layout_marginTop="@dimen/spacing"
+                android:layout_marginBottom="@dimen/spacing"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <ImageButton
+                    android:id="@+id/mic_button"
+                    android:layout_width="@dimen/touch_min"
+                    android:layout_height="@dimen/touch_min"
+                    android:background="@drawable/bg_mic_button"
+                    android:contentDescription="@string/answer_by_voice"
+                    android:padding="14dp"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/ic_mic"
+                    app:tint="@color/white" />
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:id="@+id/mic_label"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="@string/confirm_detected"
-                    android:textAppearance="@style/TextAppearance.WithYou.Body"
-                    android:textColor="@color/text_secondary" />
-
-                <TextView
-                    android:id="@+id/confirm_title"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:accessibilityHeading="true"
-                    android:textAppearance="@style/TextAppearance.WithYou.Title" />
-
-                <TextView
-                    android:id="@+id/confirm_detail"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:textAppearance="@style/TextAppearance.WithYou.Body"
-                    android:textSize="22sp" />
+                    android:layout_marginStart="12dp"
+                    android:layout_weight="1"
+                    android:importantForAccessibility="no"
+                    android:text="@string/answer_by_voice"
+                    android:textAppearance="@style/TextAppearance.WithYou.Body" />
             </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
+        </LinearLayout>
+    </ScrollView>
 
-        <!-- Burbuja del asistente: se muestra y se dice a la vez (RF-13) -->
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing"
-            app:cardBackgroundColor="@color/card_accent"
-            app:cardCornerRadius="@dimen/card_radius"
-            app:cardElevation="0dp">
-
-            <TextView
-                android:id="@+id/assistant_message"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:accessibilityLiveRegion="polite"
-                android:padding="@dimen/spacing"
-                android:textAppearance="@style/TextAppearance.WithYou.Body"
-                android:textStyle="bold" />
-        </com.google.android.material.card.MaterialCardView>
-
-        <TextView
-            android:id="@+id/heard_text"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:textAppearance="@style/TextAppearance.WithYou.Body"
-            android:textColor="@color/text_secondary"
-            android:visibility="gone" />
+    <!-- Botones fijos abajo -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/background"
+        android:elevation="8dp"
+        android:orientation="vertical"
+        android:paddingStart="@dimen/screen_padding"
+        android:paddingTop="12dp"
+        android:paddingEnd="@dimen/screen_padding"
+        android:paddingBottom="@dimen/spacing">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/confirm_button"
             style="@style/Widget.WithYou.BigButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
             app:backgroundTint="@color/confirm"
             app:icon="@drawable/ic_check" />
-
-        <!-- Solo para mensajes: volver a dictar el texto (CU-03) -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/redictate_button"
-            style="@style/Widget.WithYou.OptionButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing"
-            android:gravity="center"
-            android:text="@string/redictate_message"
-            android:visibility="gone"
-            app:icon="@drawable/ic_mic"
-            app:iconGravity="textStart"
-            app:iconSize="28dp"
-            app:iconTint="@color/primary" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/cancel_button"
             style="@style/Widget.WithYou.BigButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing"
+            android:layout_marginTop="12dp"
             android:text="@string/button_cancel"
             app:backgroundTint="@color/cancel"
             app:icon="@drawable/ic_close" />
-
-        <!-- También se puede responder "sí" o "no" por voz (CU-08) -->
-        <ImageButton
-            android:id="@+id/mic_button"
-            android:layout_width="@dimen/small_mic_size"
-            android:layout_height="@dimen/small_mic_size"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="28dp"
-            android:background="@drawable/bg_mic_button"
-            android:contentDescription="@string/answer_by_voice"
-            android:elevation="4dp"
-            android:padding="@dimen/small_mic_icon_padding"
-            android:scaleType="fitCenter"
-            android:src="@drawable/ic_mic"
-            app:tint="@color/white" />
-
-        <TextView
-            android:id="@+id/mic_label"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="8dp"
-            android:importantForAccessibility="no"
-            android:text="@string/answer_by_voice"
-            android:textAppearance="@style/TextAppearance.WithYou.Body" />
-
     </LinearLayout>
-</ScrollView>
+
+</LinearLayout>

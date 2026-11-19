@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Campos del PIN; AppDialog pone el título, el mensaje, el desplazamiento y los botones. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/pin_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/pin_hint">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/pin_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:importantForAutofill="no"
+            android:inputType="numberPassword"
+            android:maxLength="4"
+            android:minHeight="@dimen/touch_min"
+            android:textSize="28sp" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Solo al crear o cambiar el PIN -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/confirm_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/spacing"
+        android:hint="@string/pin_confirm_hint"
+        android:visibility="gone">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/confirm_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:importantForAutofill="no"
+            android:inputType="numberPassword"
+            android:maxLength="4"
+            android:minHeight="@dimen/touch_min"
+            android:textSize="28sp" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+</LinearLayout>

@@ -9,13 +9,17 @@ import cl.withyou.app.WithYouApp
 import cl.withyou.app.data.repository.ContactRepository
 import cl.withyou.app.domain.model.Contact
 import cl.withyou.app.domain.validation.ContactValidator
+import cl.withyou.app.services.PhoneContactReader
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 /** Pantalla Contactos (CU-07, RF-11): lista, agregar, editar y eliminar contactos frecuentes. */
-class ContactsViewModel(private val repository: ContactRepository) : ViewModel() {
+class ContactsViewModel(
+    private val repository: ContactRepository,
+    private val phoneContacts: PhoneContactReader,
+) : ViewModel() {
 
     /** Lista ordenada por nombre; se actualiza sola al guardar o eliminar. */
     val contacts: StateFlow<List<Contact>> =
@@ -35,6 +39,20 @@ class ContactsViewModel(private val repository: ContactRepository) : ViewModel()
         return ContactFormResult.SAVED
     }
 
+    /**
+     * Agrega el contacto elegido en la agenda del teléfono. Se valida igual que en el formulario
+     * y no se duplica si ese número ya está entre los frecuentes.
+     */
+    suspend fun importFromPhone(uri: String): ContactImportResult {
+        val picked = phoneContacts.read(uri) ?: return ContactImportResult.Failed
+        val phone = ContactValidator.sanitizePhone(picked.phone) ?: return ContactImportResult.InvalidPhone
+        val name = ContactValidator.cleanName(picked.name.take(ContactValidator.MAX_NAME_LENGTH))
+            ?: return ContactImportResult.InvalidName
+        contacts.value.firstOrNull { it.phone == phone }?.let { return ContactImportResult.AlreadyExists(it.name) }
+        repository.save(Contact(id = 0, name = name, phone = phone))
+        return ContactImportResult.Imported(name)
+    }
+
     fun delete(contact: Contact) {
         viewModelScope.launch { repository.delete(contact.id) }
     }
@@ -50,10 +68,19 @@ class ContactsViewModel(private val repository: ContactRepository) : ViewModel()
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
                 val app = this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as WithYouApp
-                ContactsViewModel(app.container.contactRepository)
+                ContactsViewModel(app.container.contactRepository, app.container.phoneContactReader)
             }
         }
     }
 }
 
 enum class ContactFormResult { SAVED, NAME_INVALID, PHONE_INVALID }
+
+/** Resultado de "Agregar desde mis contactos". */
+sealed interface ContactImportResult {
+    data class Imported(val name: String) : ContactImportResult
+    data class AlreadyExists(val name: String) : ContactImportResult
+    data object InvalidPhone : ContactImportResult
+    data object InvalidName : ContactImportResult
+    data object Failed : ContactImportResult
+}

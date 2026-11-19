@@ -187,12 +187,14 @@ Todo a ≤ 2 niveles desde Inicio (RNF-02).
 
 Avance detallado (trazabilidad de requerimientos, pruebas, problemas y decisiones) en [`docs/avance-fase2.md`](docs/avance-fase2.md). **Actualizarlo al terminar cada paso.**
 
-- ✅ Pasos 1 a 7 (13 de 13 RF): hora, fecha, linterna, volumen, alarma, llamada y mensaje con confirmación (pantallas Confirmar, Aclarar y Resultado), contactos (Room + `ContactRepository`), Mensajes y Ajustes (DataStore + `PreferencesRepository`) funcionan en el teléfono.
+- ✅ **Los 8 pasos completos** (13 de 13 RF, 8 de 8 RNF): todo funciona en el teléfono, incluido cifrado (SQLCipher + Keystore), PIN del cuidador, accesibilidad verificada con Espresso, RNF-03 medido (424 ms promedio) y agregar contactos desde la agenda.
 - 🧭 `AssistantViewModel` (en `ui/assistant/`) es el único ViewModel de la conversación; lo comparten Inicio, Confirmar, Aclarar y Resultado. `MainActivity` navega según `AssistantUiState.screen`.
-- ⏭️ Siguiente: paso 8, el último (TalkBack, cifrado SQLCipher + Keystore, PIN para Ajustes y Contactos, pruebas Espresso y medición del RNF-03). Meta: 20-11-2026.
+- ⏭️ Siguiente: pruebas con usuarios (adultos mayores) y publicar el repositorio en GitHub.
+- 📱 Diseño responsive: todo diálogo usa `AppDialog` (botones fijos abajo); en pantallas con botones de acción, los botones van fijos fuera del `ScrollView`. `ResponsiveUiTest` lo comprueba con texto al 160 %.
+- 🔐 Seguridad: la base de datos se llama `withyou-secure.db` (cifrada); el PIN solo protege Ajustes y cambios en Contactos.
 - 🔤 El tamaño de texto se aplica con `fontScale` en `MainActivity.attachBaseContext`; los textos deben usar `sp` y los contenedores crecer con el contenido (nada de alturas fijas con texto).
 - 📌 Mensajes: se mantiene `ACTION_SENDTO` (el usuario toca Enviar); el envío automático con `SmsManager` quedó como mejora futura en `docs/avance-fase2.md`.
-- 🧪 Pruebas instrumentadas: correr con `adb shell am instrument` (Gradle desinstala la app al terminar `connectedAndroidTest`).
+- 🧪 Pruebas instrumentadas: correr con `adb shell am instrument` (Gradle desinstala la app al terminar `connectedAndroidTest`). Las de interfaz necesitan la pantalla desbloqueada; `WithoutPinRule` quita y restaura el PIN.
 - 🌿 Git: una rama por paso (`feature/paso-N-...`), commits en español.
 - ⚠️ En Android Go el reconocimiento de voz requiere internet (no hay motor offline).
 

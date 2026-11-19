@@ -16,6 +16,51 @@
         <item name="android:textColor">@color/text_primary</item>
         <item name="android:textSize">@dimen/text_body</item>
         <item name="toolbarStyle">@style/Widget.WithYou.Toolbar</item>
+        <item name="materialAlertDialogTheme">@style/ThemeOverlay.WithYou.Dialog</item>
+        <item name="textInputStyle">@style/Widget.WithYou.TextInput</item>
+    </style>
+
+    <!-- Campos de texto: errores y ayudas de 18sp en vez de 12sp (RNF-01) -->
+    <style name="Widget.WithYou.TextInput" parent="Widget.Material3.TextInputLayout.OutlinedBox">
+        <item name="errorTextAppearance">@style/TextAppearance.WithYou.InputMessage</item>
+        <item name="helperTextTextAppearance">@style/TextAppearance.WithYou.InputMessage</item>
+    </style>
+
+    <style name="TextAppearance.WithYou.InputMessage" parent="TextAppearance.Material3.BodySmall">
+        <item name="android:textSize">18sp</item>
+    </style>
+
+    <!-- Diálogos (AppDialog): un poco más anchos que el estándar para dar espacio al texto grande -->
+    <style name="ThemeOverlay.WithYou.Dialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+        <item name="backgroundInsetStart">12dp</item>
+        <item name="backgroundInsetEnd">12dp</item>
+    </style>
+
+    <!-- Botones de AppDialog: lado a lado, 56dp de alto y 18sp (RNF-01); el texto puede usar dos líneas -->
+    <style name="Widget.WithYou.DialogPrimaryButton" parent="Widget.Material3.Button">
+        <item name="android:minHeight">@dimen/touch_min</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:maxLines">2</item>
+        <item name="android:paddingStart">8dp</item>
+        <item name="android:paddingEnd">8dp</item>
+        <item name="backgroundTint">@color/primary</item>
+        <item name="cornerRadius">16dp</item>
+    </style>
+
+    <style name="Widget.WithYou.DialogSecondaryButton" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="android:minHeight">@dimen/touch_min</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:maxLines">2</item>
+        <item name="android:paddingStart">8dp</item>
+        <item name="android:paddingEnd">8dp</item>
+        <item name="android:textColor">@color/primary_dark</item>
+        <item name="strokeColor">@color/primary</item>
+        <item name="strokeWidth">2dp</item>
+        <item name="cornerRadius">16dp</item>
     </style>
 
     <style name="Widget.WithYou.Toolbar" parent="Widget.Material3.Toolbar">

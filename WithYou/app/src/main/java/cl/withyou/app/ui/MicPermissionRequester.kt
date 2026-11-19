@@ -9,7 +9,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import cl.withyou.app.R
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 
 /**
@@ -38,24 +37,25 @@ class MicPermissionRequester(private val fragment: Fragment, private val onGrant
     }
 
     private fun showRationale() {
-        MaterialAlertDialogBuilder(fragment.requireContext())
-            .setTitle(R.string.mic_permission_title)
-            .setMessage(R.string.mic_permission_message)
-            .setPositiveButton(R.string.button_continue) { _, _ -> launcher.launch(Manifest.permission.RECORD_AUDIO) }
-            .setNegativeButton(R.string.button_not_now, null)
-            .show()
+        val context = fragment.requireContext()
+        context.showAppDialog(
+            title = context.getString(R.string.mic_permission_title),
+            message = context.getString(R.string.mic_permission_message),
+            positiveText = context.getString(R.string.button_continue),
+            negativeText = context.getString(R.string.button_not_now),
+        ) { launcher.launch(Manifest.permission.RECORD_AUDIO) }
     }
 
     private fun showOpenSettingsDialog() {
         val context = fragment.requireContext()
-        MaterialAlertDialogBuilder(context)
-            .setTitle(R.string.mic_permission_settings_title)
-            .setMessage(R.string.mic_permission_settings_message)
-            .setPositiveButton(R.string.button_open_settings) { _, _ ->
-                val uri = Uri.fromParts("package", context.packageName, null)
-                fragment.startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, uri))
-            }
-            .setNegativeButton(R.string.button_not_now, null)
-            .show()
+        context.showAppDialog(
+            title = context.getString(R.string.mic_permission_settings_title),
+            message = context.getString(R.string.mic_permission_settings_message),
+            positiveText = context.getString(R.string.button_open_settings),
+            negativeText = context.getString(R.string.button_not_now),
+        ) {
+            val uri = Uri.fromParts("package", context.packageName, null)
+            fragment.startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, uri))
+        }
     }
 }

@@ -133,11 +133,19 @@
     <string name="call_permission_message">Para llamar a tus contactos cuando me lo pidas, necesito permiso para hacer llamadas. Siempre te preguntaré antes de llamar. Si no lo das, abriré el teléfono con el número listo y tendrás que tocar Llamar.</string>
 
     <!-- Pantalla Contactos (CU-07, RF-11) -->
+    <string name="import_contact">Agregar desde mis contactos</string>
+    <string name="import_done">Agregué a %1$s a tus contactos frecuentes.</string>
+    <string name="import_exists">%1$s ya está en tus contactos frecuentes.</string>
+    <string name="import_invalid_phone">Ese contacto no tiene un número de teléfono válido.</string>
+    <string name="import_invalid_name">Ese contacto no tiene un nombre. Agrégalo con «Agregar contacto».</string>
+    <string name="import_failed">No pude leer ese contacto. Intenta de nuevo.</string>
+    <string name="import_no_app">Este teléfono no tiene una agenda de contactos.</string>
     <string name="add_contact">Agregar contacto</string>
     <string name="contacts_empty">Todavía no tienes contactos frecuentes. Toca «Agregar contacto» para agregar a tu familia o a quien llames seguido.</string>
     <string name="contact_form_title_new">Nuevo contacto</string>
     <string name="contact_form_title_edit">Editar contacto</string>
-    <string name="contact_name_hint">Nombre (por ejemplo: María o Hija)</string>
+    <string name="contact_name_hint">Nombre</string>
+    <string name="contact_name_helper">Por ejemplo: María o Hija</string>
     <string name="contact_phone_hint">Número de teléfono</string>
     <string name="button_save">Guardar</string>
     <string name="button_delete">Eliminar</string>
@@ -173,6 +181,30 @@
     <string name="settings_voice_feedback">Responder también con la voz</string>
     <string name="settings_voice_feedback_hint">Si lo desactivas, las respuestas solo se mostrarán en la pantalla.</string>
     <string name="settings_percent">%1$d %%</string>
+
+    <!-- PIN del cuidador (§8) -->
+    <string name="pin_title">PIN del cuidador</string>
+    <string name="pin_message">Este cambio está protegido. Escribe el PIN de 4 números.</string>
+    <string name="pin_hint">PIN de 4 números</string>
+    <string name="pin_confirm_hint">Repite el PIN</string>
+    <string name="pin_unlock">Desbloquear</string>
+    <string name="pin_wrong">PIN incorrecto. Intenta de nuevo.</string>
+    <string name="pin_invalid">El PIN debe tener exactamente 4 números.</string>
+    <string name="pin_mismatch">Los dos PIN no son iguales.</string>
+    <string name="pin_setup_title">PIN del cuidador</string>
+    <string name="pin_setup_message">Con un PIN, los Ajustes y los cambios en Contactos quedan protegidos. Llamar y enviar mensajes siguen funcionando sin PIN.</string>
+    <string name="pin_section_title">PIN del cuidador</string>
+    <string name="pin_status_on">Activado: los Ajustes y los cambios en Contactos piden el PIN.</string>
+    <string name="pin_status_off">Sin PIN: cualquiera puede cambiar los Ajustes y los Contactos.</string>
+    <string name="pin_create">Crear PIN</string>
+    <string name="pin_change">Cambiar PIN</string>
+    <string name="pin_remove">Quitar PIN</string>
+    <string name="pin_remove_title">¿Quitar el PIN?</string>
+    <string name="pin_remove_message">Los Ajustes y los Contactos quedarán sin protección.</string>
+    <string name="pin_saved">PIN guardado.</string>
+    <string name="pin_removed">PIN quitado.</string>
+    <string name="settings_locked_title">Ajustes protegidos</string>
+    <string name="settings_locked_message">El cuidador protegió los Ajustes con un PIN.</string>
 
     <!-- Descripción de intenciones (en infinitivo) -->
     <string name="intent_alarm">poner una alarma</string>

@@ -17,6 +17,22 @@
         app:backgroundTint="@color/primary"
         app:icon="@drawable/ic_person_add" />
 
+    <!-- Elegir desde la agenda del teléfono: no pide permisos (RNF-06) -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/import_contact_button"
+        style="@style/Widget.WithYou.OptionButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/screen_padding"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="@dimen/screen_padding"
+        android:gravity="center"
+        android:text="@string/import_contact"
+        app:icon="@drawable/ic_contacts"
+        app:iconGravity="textStart"
+        app:iconSize="28dp"
+        app:iconTint="@color/primary" />
+
     <TextView
         android:id="@+id/empty_text"
         android:layout_width="match_parent"

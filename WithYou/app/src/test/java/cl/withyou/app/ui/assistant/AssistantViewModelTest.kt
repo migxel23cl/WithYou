@@ -638,6 +638,30 @@ class AssistantViewModelTest {
 
     // endregion
 
+    // region Medición del tiempo de respuesta (RNF-03)
+
+    @Test
+    fun `registra el tiempo desde la ultima palabra, desde el fin del habla y el total`() {
+        val measurements = mutableListOf<LatencyMeasurement>()
+        val measured = AssistantViewModel(
+            speech = speech, tts = tts, executor = executor, parser = IntentParser(),
+            processor = CommandProcessor { NOW }, texts = FakeTexts(), contacts = contactRepository,
+            preferences = preferences, clock = { NOW }, latencyLogger = { measurements += it },
+        )
+        measured.onMicClicked()
+        speech.emit(SpeechEvent.Partial("qué"))
+        speech.emit(SpeechEvent.Partial("qué hora es"))
+        speech.emit(SpeechEvent.EndOfSpeech)
+        speech.emit(SpeechEvent.Results(listOf("qué hora es")))
+
+        val m = measurements.single()
+        assertTrue(m.totalMs >= 0)
+        assertTrue(m.fromLastWordMs != null && m.fromLastWordMs!! <= m.totalMs)
+        assertTrue(m.fromEndOfSpeechMs != null && m.fromEndOfSpeechMs!! <= m.fromLastWordMs!!)
+    }
+
+    // endregion
+
     // region Preferencias de voz (RF-12)
 
     @Test

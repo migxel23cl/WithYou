@@ -11,13 +11,20 @@ import androidx.lifecycle.repeatOnLifecycle
 import cl.withyou.app.R
 import cl.withyou.app.databinding.FragmentSettingsBinding
 import cl.withyou.app.domain.model.AccessibilityPreferences
+import cl.withyou.app.ui.security.SecurityUiState
+import cl.withyou.app.ui.security.SecurityViewModel
+import cl.withyou.app.ui.security.askPin
+import cl.withyou.app.ui.security.showPinSetup
+import cl.withyou.app.ui.showAppDialog
+import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.slider.Slider
 import kotlin.math.roundToInt
 import kotlinx.coroutines.launch
 
 /**
  * Pantalla Ajustes (RF-12, mockup 7): tamaño del texto con vista previa, volumen de la voz y
- * respuesta por voz. Los cambios se guardan al soltar el control.
+ * respuesta por voz. Los cambios se guardan al soltar el control. Si el cuidador configuró un
+ * PIN, la pantalla queda protegida hasta ingresarlo (§8).
  */
 class SettingsFragment : Fragment(R.layout.fragment_settings) {
 
@@ -28,6 +35,7 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
 
     /** Compartido con MainActivity, que aplica el tamaño del texto a toda la app. */
     private val viewModel: SettingsViewModel by activityViewModels { SettingsViewModel.Factory }
+    private val security: SecurityViewModel by activityViewModels { SecurityViewModel.Factory }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -55,11 +63,22 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
             if (checked != viewModel.preferences.value.voiceFeedback) viewModel.setVoiceFeedback(checked)
         }
 
+        binding.unlockButton.setOnClickListener { askPin(security) }
+        binding.setPinButton.setOnClickListener { showPinSetup(security) { showMessage(R.string.pin_saved) } }
+        binding.removePinButton.setOnClickListener { confirmRemovePin() }
+
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.preferences.collect(::render)
+                launch { viewModel.preferences.collect(::render) }
+                launch { security.uiState.collect(::renderSecurity) }
             }
         }
+    }
+
+    /** Al salir de Ajustes se vuelve a bloquear con el PIN. */
+    override fun onStop() {
+        security.lock()
+        super.onStop()
     }
 
     override fun onDestroyView() {
@@ -88,6 +107,32 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
         val base = resources.getDimension(R.dimen.text_body) / applied
         binding.textPreview.setTextSize(TypedValue.COMPLEX_UNIT_PX, base * scale)
         binding.textScaleValue.text = percent(scale)
+    }
+
+    /** Con PIN bloqueado se muestran solo el aviso y el botón Desbloquear. */
+    private fun renderSecurity(state: SecurityUiState) {
+        val binding = binding ?: return
+        val locked = state == SecurityUiState.LOCKED || state == SecurityUiState.LOADING
+        binding.lockedCard.visibility = if (state == SecurityUiState.LOCKED) View.VISIBLE else View.GONE
+        binding.settingsContent.visibility = if (locked) View.GONE else View.VISIBLE
+        val hasPin = state == SecurityUiState.UNLOCKED
+        binding.pinStatus.setText(if (hasPin) R.string.pin_status_on else R.string.pin_status_off)
+        binding.setPinButton.setText(if (hasPin) R.string.pin_change else R.string.pin_create)
+        binding.removePinButton.visibility = if (hasPin) View.VISIBLE else View.GONE
+    }
+
+    private fun confirmRemovePin() {
+        requireContext().showAppDialog(
+            title = getString(R.string.pin_remove_title),
+            message = getString(R.string.pin_remove_message),
+            positiveText = getString(R.string.pin_remove),
+            negativeText = getString(R.string.button_cancel),
+        ) { if (security.removePin()) showMessage(R.string.pin_removed) }
+    }
+
+    private fun showMessage(messageId: Int) {
+        val root = binding?.root ?: return
+        Snackbar.make(root, messageId, Snackbar.LENGTH_SHORT).show()
     }
 
     private fun percent(value: Float): String = getString(R.string.settings_percent, (value * 100).roundToInt())

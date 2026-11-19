@@ -1,12 +1,18 @@
 package cl.withyou.app.ui.contacts
 
 import android.Manifest
+import android.app.Activity
+import android.content.ActivityNotFoundException
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import android.provider.ContactsContract
+import androidx.activity.result.contract.ActivityResultContract
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -20,21 +26,37 @@ import cl.withyou.app.databinding.DialogContactFormBinding
 import cl.withyou.app.databinding.FragmentContactsBinding
 import cl.withyou.app.domain.model.Contact
 import cl.withyou.app.ui.assistant.AssistantViewModel
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import cl.withyou.app.ui.scrollTo
+import cl.withyou.app.ui.showAppDialog
+import cl.withyou.app.ui.security.SecurityViewModel
+import cl.withyou.app.ui.security.withPin
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
 
 /**
  * Pantalla Contactos (CU-07, mockup 5). Solo muestra y avisa: validar y guardar lo hace
  * ContactsViewModel, y llamar lo hace AssistantViewModel (pasando por Confirmar, RF-10).
+ * Ver y llamar es libre; agregar, editar y eliminar pide el PIN del cuidador si existe (§8).
  */
 class ContactsFragment : Fragment(R.layout.fragment_contacts) {
 
     private var binding: FragmentContactsBinding? = null
     private val viewModel: ContactsViewModel by viewModels { ContactsViewModel.Factory }
     private val assistant: AssistantViewModel by activityViewModels { AssistantViewModel.Factory }
+    private val security: SecurityViewModel by activityViewModels { SecurityViewModel.Factory }
 
-    private val adapter = ContactsAdapter(onEdit = ::showForm, onCall = { assistant.requestCall(it) })
+    private val adapter = ContactsAdapter(
+        onEdit = { contact -> withPin(security) { showForm(contact) } },
+        onCall = { assistant.requestCall(it) },
+    )
+
+    /**
+     * Abre la agenda para elegir un número. Android da acceso solo al contacto elegido, así que no
+     * se necesita el permiso READ_CONTACTS (RNF-06).
+     */
+    private val pickPhoneContact = registerForActivityResult(PickPhoneNumber()) { uri ->
+        if (uri != null) importContact(uri)
+    }
 
     /** Si se niega, igual se puede llamar: se abre el teléfono con el número marcado. */
     private val requestCallPermission =
@@ -46,16 +68,25 @@ class ContactsFragment : Fragment(R.layout.fragment_contacts) {
 
         binding.contactsList.layoutManager = LinearLayoutManager(requireContext())
         binding.contactsList.adapter = adapter
-        binding.addContactButton.setOnClickListener { showForm(null) }
+        binding.addContactButton.setOnClickListener { withPin(security) { showForm(null) } }
+        binding.importContactButton.setOnClickListener { withPin(security) { openPhoneContacts() } }
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.contacts.collect { contacts ->
                     adapter.submitList(contacts)
                     binding.emptyText.visibility = if (contacts.isEmpty()) View.VISIBLE else View.GONE
+                    // Una lista vacía visible sería un elemento sin nombre para TalkBack (RNF-08).
+                    binding.contactsList.visibility = if (contacts.isEmpty()) View.GONE else View.VISIBLE
                 }
             }
         }
+    }
+
+    /** Al salir de la pantalla se vuelve a bloquear con el PIN. */
+    override fun onStop() {
+        security.lock()
+        super.onStop()
     }
 
     override fun onDestroyView() {
@@ -70,16 +101,15 @@ class ContactsFragment : Fragment(R.layout.fragment_contacts) {
         form.nameInput.setText(contact?.name)
         form.phoneInput.setText(contact?.phone)
 
-        val builder = MaterialAlertDialogBuilder(requireContext())
-            .setTitle(if (contact == null) R.string.contact_form_title_new else R.string.contact_form_title_edit)
-            .setView(form.root)
-            .setPositiveButton(R.string.button_save, null)
-            .setNegativeButton(R.string.button_cancel, null)
-        if (contact != null) builder.setNeutralButton(R.string.button_delete) { _, _ -> confirmDelete(contact) }
-        val dialog = builder.show()
-
-        // Se reemplaza el listener para que el diálogo no se cierre si hay errores.
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+        requireContext().showAppDialog(
+            title = getString(if (contact == null) R.string.contact_form_title_new else R.string.contact_form_title_edit),
+            content = form.root,
+            positiveText = getString(R.string.button_save),
+            negativeText = getString(R.string.button_cancel),
+            closeOnPositive = false,
+            destructiveText = contact?.let { getString(R.string.button_delete) },
+            onDestructive = { contact?.let(::confirmDelete) },
+        ) { dialog ->
             val result = viewModel.save(contact?.id, form.nameInput.text.toString(), form.phoneInput.text.toString())
             form.nameLayout.error = if (result == ContactFormResult.NAME_INVALID) getString(R.string.error_name_missing) else null
             form.phoneLayout.error = if (result == ContactFormResult.PHONE_INVALID) getString(R.string.error_phone_invalid) else null
@@ -87,20 +117,48 @@ class ContactsFragment : Fragment(R.layout.fragment_contacts) {
                 dialog.dismiss()
                 showMessage(R.string.contact_saved)
                 offerCallPermission()
+            } else {
+                // El error debe verse: se desplaza hasta él y se pone el cursor en ese campo.
+                val field = if (result == ContactFormResult.NAME_INVALID) form.nameLayout else form.phoneLayout
+                field.editText?.requestFocus()
+                dialog.scrollTo(field)
+            }
+        }
+    }
+
+    private fun openPhoneContacts() {
+        try {
+            pickPhoneContact.launch(Unit)
+        } catch (e: ActivityNotFoundException) {
+            showMessage(R.string.import_no_app)
+        }
+    }
+
+    private fun importContact(uri: Uri) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            when (val result = viewModel.importFromPhone(uri.toString())) {
+                is ContactImportResult.Imported -> {
+                    showMessage(getString(R.string.import_done, result.name))
+                    offerCallPermission()
+                }
+                is ContactImportResult.AlreadyExists -> showMessage(getString(R.string.import_exists, result.name))
+                ContactImportResult.InvalidPhone -> showMessage(R.string.import_invalid_phone)
+                ContactImportResult.InvalidName -> showMessage(R.string.import_invalid_name)
+                ContactImportResult.Failed -> showMessage(R.string.import_failed)
             }
         }
     }
 
     private fun confirmDelete(contact: Contact) {
-        MaterialAlertDialogBuilder(requireContext())
-            .setTitle(getString(R.string.delete_contact_title, contact.name))
-            .setMessage(R.string.delete_contact_message)
-            .setPositiveButton(R.string.button_delete) { _, _ ->
-                viewModel.delete(contact)
-                showMessage(R.string.contact_deleted)
-            }
-            .setNegativeButton(R.string.button_cancel, null)
-            .show()
+        requireContext().showAppDialog(
+            title = getString(R.string.delete_contact_title, contact.name),
+            message = getString(R.string.delete_contact_message),
+            positiveText = getString(R.string.button_delete),
+            negativeText = getString(R.string.button_cancel),
+        ) {
+            viewModel.delete(contact)
+            showMessage(R.string.contact_deleted)
+        }
     }
 
     /** Explica en lenguaje simple para qué es el permiso de llamadas antes de pedirlo (RNF-06). */
@@ -108,18 +166,27 @@ class ContactsFragment : Fragment(R.layout.fragment_contacts) {
         val granted = ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CALL_PHONE) ==
             PackageManager.PERMISSION_GRANTED
         if (granted || !viewModel.shouldExplainCallPermission()) return
-        MaterialAlertDialogBuilder(requireContext())
-            .setTitle(R.string.call_permission_title)
-            .setMessage(R.string.call_permission_message)
-            .setPositiveButton(R.string.button_continue) { _, _ ->
-                requestCallPermission.launch(Manifest.permission.CALL_PHONE)
-            }
-            .setNegativeButton(R.string.button_not_now, null)
-            .show()
+        requireContext().showAppDialog(
+            title = getString(R.string.call_permission_title),
+            message = getString(R.string.call_permission_message),
+            positiveText = getString(R.string.button_continue),
+            negativeText = getString(R.string.button_not_now),
+        ) { requestCallPermission.launch(Manifest.permission.CALL_PHONE) }
     }
 
-    private fun showMessage(messageId: Int) {
+    private fun showMessage(messageId: Int) = showMessage(getString(messageId))
+
+    private fun showMessage(message: String) {
         val root = binding?.root ?: return
-        Snackbar.make(root, messageId, Snackbar.LENGTH_SHORT).show()
+        Snackbar.make(root, message, Snackbar.LENGTH_LONG).show()
+    }
+
+    /** Agenda del teléfono en modo "elegir un número": devuelve el número elegido o null. */
+    private class PickPhoneNumber : ActivityResultContract<Unit, Uri?>() {
+        override fun createIntent(context: Context, input: Unit) =
+            Intent(Intent.ACTION_PICK, ContactsContract.CommonDataKinds.Phone.CONTENT_URI)
+
+        override fun parseResult(resultCode: Int, intent: Intent?): Uri? =
+            intent?.data.takeIf { resultCode == Activity.RESULT_OK }
     }
 }

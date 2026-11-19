@@ -63,11 +63,15 @@ dependencies {
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
+    // Cifrado de la base de datos Room (RNF-05, §8 del diseño)
+    implementation(libs.sqlcipher.android)
     implementation(libs.androidx.datastore.preferences)
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+    // Verificador de accesibilidad de Google en las pruebas Espresso (RNF-01, RNF-08); no va en la app.
+    androidTestImplementation(libs.androidx.espresso.accessibility)
     androidTestImplementation(libs.kotlinx.coroutines.test)
 }

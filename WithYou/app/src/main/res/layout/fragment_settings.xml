@@ -11,6 +11,67 @@
         android:orientation="vertical"
         android:padding="@dimen/screen_padding">
 
+        <!-- Ajustes protegidos con el PIN del cuidador (§8) -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/locked_card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:cardBackgroundColor="@color/card"
+            app:cardCornerRadius="@dimen/card_radius"
+            app:cardElevation="2dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:orientation="vertical"
+                android:padding="@dimen/screen_padding">
+
+                <ImageView
+                    android:layout_width="72dp"
+                    android:layout_height="72dp"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_lock"
+                    app:tint="@color/primary" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:accessibilityHeading="true"
+                    android:gravity="center"
+                    android:text="@string/settings_locked_title"
+                    android:textAppearance="@style/TextAppearance.WithYou.Title"
+                    android:textSize="24sp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:gravity="center"
+                    android:text="@string/settings_locked_message"
+                    android:textAppearance="@style/TextAppearance.WithYou.Body"
+                    android:textColor="@color/text_secondary" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/unlock_button"
+                    style="@style/Widget.WithYou.BigButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing"
+                    android:text="@string/pin_unlock"
+                    app:backgroundTint="@color/primary"
+                    app:icon="@drawable/ic_lock" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <LinearLayout
+            android:id="@+id/settings_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
         <!-- Tamaño del texto con vista previa -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
@@ -182,6 +243,66 @@
                     android:textSize="18sp" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
+
+        <!-- PIN del cuidador -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing"
+            app:cardBackgroundColor="@color/card"
+            app:cardCornerRadius="@dimen/card_radius"
+            app:cardElevation="2dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="@dimen/spacing">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:accessibilityHeading="true"
+                    android:text="@string/pin_section_title"
+                    android:textAppearance="@style/TextAppearance.WithYou.Body"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/pin_status"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:textAppearance="@style/TextAppearance.WithYou.Body"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="18sp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/set_pin_button"
+                    style="@style/Widget.WithYou.OptionButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:gravity="center"
+                    app:icon="@drawable/ic_lock"
+                    app:iconGravity="textStart"
+                    app:iconSize="28dp"
+                    app:iconTint="@color/primary" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/remove_pin_button"
+                    style="@style/Widget.WithYou.OptionButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:gravity="center"
+                    android:text="@string/pin_remove"
+                    android:textColor="@color/cancel"
+                    android:visibility="gone"
+                    app:strokeColor="@color/cancel" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        </LinearLayout>
 
     </LinearLayout>
 </ScrollView>

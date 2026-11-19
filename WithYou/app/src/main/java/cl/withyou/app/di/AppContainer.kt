@@ -2,7 +2,9 @@ package cl.withyou.app.di
 
 import android.content.Context
 import cl.withyou.app.data.local.AppDatabase
+import cl.withyou.app.data.prefs.DataStorePinRepository
 import cl.withyou.app.data.prefs.DataStorePreferencesRepository
+import cl.withyou.app.data.prefs.PinRepository
 import cl.withyou.app.data.prefs.PreferencesRepository
 import cl.withyou.app.data.prefs.settingsDataStore
 import cl.withyou.app.data.repository.ContactRepository
@@ -11,6 +13,8 @@ import cl.withyou.app.domain.parser.IntentParser
 import cl.withyou.app.domain.processor.CommandProcessor
 import cl.withyou.app.services.ActionExecutor
 import cl.withyou.app.services.AndroidActionExecutor
+import cl.withyou.app.services.AndroidPhoneContactReader
+import cl.withyou.app.services.PhoneContactReader
 import cl.withyou.app.services.AndroidSpeechService
 import cl.withyou.app.services.AndroidTtsService
 import cl.withyou.app.services.SpeechService
@@ -32,6 +36,8 @@ class AppContainer(context: Context) {
         DataStorePreferencesRepository(appContext.settingsDataStore)
     }
 
+    val pinRepository: PinRepository by lazy { DataStorePinRepository(appContext.settingsDataStore) }
+
     val intentParser: IntentParser by lazy { IntentParser() }
 
     val commandProcessor: CommandProcessor by lazy { CommandProcessor() }
@@ -41,4 +47,6 @@ class AppContainer(context: Context) {
     val ttsService: TtsService by lazy { AndroidTtsService(appContext) }
 
     val actionExecutor: ActionExecutor by lazy { AndroidActionExecutor(appContext) }
+
+    val phoneContactReader: PhoneContactReader by lazy { AndroidPhoneContactReader(appContext) }
 }

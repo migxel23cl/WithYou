@@ -53,7 +53,7 @@ class AssistantViewModel(
     private val contacts: ContactRepository,
     private val preferences: PreferencesRepository,
     private val clock: () -> LocalDateTime = LocalDateTime::now,
-    private val latencyLogger: (Long) -> Unit = {},
+    private val latencyLogger: (LatencyMeasurement) -> Unit = {},
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AssistantUiState())
@@ -73,7 +73,14 @@ class AssistantViewModel(
     /** Volumen de voz y si se responde por voz (RF-12), siempre actualizados desde DataStore. */
     private var accessibility = AccessibilityPreferences()
 
-    /** Momento en que el usuario dejó de hablar, para medir el RNF-03 (≤ 3 s). */
+    // Tiempos para medir el RNF-03 (respuesta ≤ 3 s), en nanosegundos.
+    /** Cuando se tocó el micrófono. */
+    private var listeningStartedAt: Long? = null
+
+    /** Cuando llegó la última palabra reconocida: lo más cercano a cuando el usuario terminó de hablar. */
+    private var lastWordAt: Long? = null
+
+    /** Cuando el reconocedor de Google avisó el fin del habla (después de esperar un silencio). */
     private var speechEndedAt: Long? = null
 
     /** Si el reconocedor deja de enviar eventos, se deja de esperar para no quedar pegado (RNF-07). */
@@ -96,6 +103,8 @@ class AssistantViewModel(
             return
         }
         tts.stop()
+        listeningStartedAt = System.nanoTime()
+        lastWordAt = null
         speechEndedAt = null
         _uiState.update {
             // En Inicio se limpia la respuesta anterior, salvo que sea una pregunta pendiente
@@ -232,6 +241,8 @@ class AssistantViewModel(
                 restartWatchdog()
             }
             is SpeechEvent.Partial -> {
+                // Solo cuenta como "última palabra" si el texto cambió (llegó una palabra nueva).
+                if (event.text != _uiState.value.partialText) lastWordAt = System.nanoTime()
                 _uiState.update { it.copy(partialText = event.text) }
                 restartWatchdog()
             }
@@ -252,7 +263,7 @@ class AssistantViewModel(
             is Pending.SlotFill -> onSlotAnswer(phrases, current)
             Pending.None -> onCommand(phrases)
         }
-        speechEndedAt?.let { latencyLogger((System.nanoTime() - it) / 1_000_000) }
+        logLatency()
     }
 
     private fun onCommand(phrases: List<String>) {
@@ -317,6 +328,14 @@ class AssistantViewModel(
                 apply(heard, processor.process(result), result.best.intent)
             }
         }
+    }
+
+    /** Registra cuánto tardó la respuesta (RNF-03), medido desde tres momentos distintos. */
+    private fun logLatency() {
+        val now = System.nanoTime()
+        fun since(start: Long?): Long? = start?.let { (now - it) / 1_000_000 }
+        val total = since(listeningStartedAt) ?: return
+        latencyLogger(LatencyMeasurement(totalMs = total, fromLastWordMs = since(lastWordAt), fromEndOfSpeechMs = since(speechEndedAt)))
     }
 
     /** El reconocedor entrega hasta 3 transcripciones: se usa la que el parser entiende mejor. */
@@ -556,9 +575,26 @@ class AssistantViewModel(
                     texts = AndroidResponseTexts(app),
                     contacts = container.contactRepository,
                     preferences = container.preferencesRepository,
-                    latencyLogger = { ms -> Log.d(TAG, "Latencia fin del habla → respuesta: $ms ms") },
+                    latencyLogger = { m ->
+                        Log.d(
+                            TAG,
+                            "RNF-03 | desde la última palabra: ${m.fromLastWordMs} ms" +
+                                " | desde fin del habla (Google): ${m.fromEndOfSpeechMs} ms" +
+                                " | total desde tocar el micrófono: ${m.totalMs} ms",
+                        )
+                    },
                 )
             }
         }
     }
 }
+
+/**
+ * Tiempo de respuesta de una instrucción (RNF-03). [fromLastWordMs] es el más cercano a lo que
+ * espera el usuario; [totalMs] incluye además lo que demoró en hablar.
+ */
+data class LatencyMeasurement(
+    val totalMs: Long,
+    val fromLastWordMs: Long?,
+    val fromEndOfSpeechMs: Long?,
+)
