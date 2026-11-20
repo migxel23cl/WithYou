@@ -161,6 +161,29 @@ class IntentParserTest {
     }
 
     @Test
+    fun `alarmas con nombre`() = assertBest(
+        listOf(
+            "pon una alarma a las ocho de la mañana para tomar la pastilla" to
+                UserIntent.SetAlarm(TimeSpec.Exact(8, 0), label = "Tomar la pastilla"),
+            "despiértame mañana a las siete de la mañana que diga levantarse" to
+                UserIntent.SetAlarm(TimeSpec.Exact(7, 0), AlarmDay.TOMORROW, "Levantarse"),
+            "pon una alarma a las ocho de la noche para tomar 2 pastillas" to
+                UserIntent.SetAlarm(TimeSpec.Exact(20, 0), label = "Tomar 2 pastillas"),
+            "recuérdame llamar a María a las cinco de la tarde" to
+                UserIntent.SetAlarm(TimeSpec.Exact(17, 0), label = "Llamar a María"),
+            "alarma en 20 minutos para sacar el pan del horno" to
+                UserIntent.SetAlarm(TimeSpec.InMinutes(20), label = "Sacar el pan del horno"),
+        ),
+    )
+
+    @Test
+    fun `el nombre de la alarma se completa con lo que se dicte`() {
+        val alarm = UserIntent.SetAlarm(TimeSpec.Exact(8, 0))
+        assertEquals(alarm.copy(label = "Tomar la pastilla"), parser.completeSlot(alarm, Slot.ALARM_LABEL, "tomar la pastilla."))
+        assertEquals(null, parser.completeSlot(alarm, Slot.ALARM_LABEL, "123"))
+    }
+
+    @Test
     fun `completa la hora que faltaba`() {
         val noTime = UserIntent.SetAlarm(TimeSpec.MissingHour(null))
         assertEquals(

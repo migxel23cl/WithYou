@@ -314,6 +314,44 @@ class AssistantViewModelTest {
     }
 
     @Test
+    fun `el nombre dicho en la frase llega al reloj`() {
+        say("pon una alarma para mañana a las ocho de la mañana para tomar la pastilla")
+        assertEquals(SecondaryAction.RENAME_ALARM, state.secondaryAction)
+        viewModel.onConfirm()
+        assertEquals(listOf(Triple(8, 0, "Tomar la pastilla")), executor.alarmCalls)
+    }
+
+    @Test
+    fun `sin nombre la alarma usa el de la app y ofrece ponerle uno`() {
+        say("pon una alarma para mañana a las ocho de la mañana")
+        assertEquals(SecondaryAction.NAME_ALARM, state.secondaryAction)
+        viewModel.onConfirm()
+        assertEquals("Withyou", executor.alarmCalls.single().third)
+    }
+
+    @Test
+    fun `ponerle nombre desde confirmar y volver a confirmar`() {
+        say("pon una alarma para mañana a las ocho de la mañana")
+        viewModel.onSecondaryAction()
+        assertEquals(VoiceState.LISTENING, state.voice)
+        assertEquals("falta ${Slot.ALARM_LABEL}", state.message)
+
+        speech.emit(SpeechEvent.Results(listOf("ir al médico")))
+        assertEquals("¿${alarmTomorrow8.copy(label = "Ir al médico")}?", state.confirmation?.title)
+        viewModel.onConfirm()
+        assertEquals(listOf(Triple(8, 0, "Ir al médico")), executor.alarmCalls)
+    }
+
+    @Test
+    fun `decir no al pedir el nombre vuelve a la confirmacion sin perder la alarma`() {
+        say("pon una alarma para mañana a las ocho de la mañana")
+        viewModel.onNameAlarm()
+        speech.emit(SpeechEvent.Results(listOf("no")))
+        assertEquals(AssistantScreen.CONFIRM, state.screen)
+        assertEquals("¿$alarmTomorrow8?", state.confirmation?.title)
+    }
+
+    @Test
     fun `una hora que ya paso se rechaza con explicacion`() {
         val result = say("pon una alarma para hoy a las siete de la mañana")
         assertEquals(homeResponse("pon una alarma para hoy a las siete de la mañana", "rechazo TIME_ALREADY_PASSED", ResponseKind.ERROR), result)

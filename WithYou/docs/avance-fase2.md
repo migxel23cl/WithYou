@@ -1,6 +1,6 @@
-# Avance Fase 2 (Desarrollo) — Withyou
+# Informe Fase 2 (Desarrollo) — Withyou
 
-> Última actualización: 18-11-2026 · **Los 8 pasos del plan completos** y validados en el teléfono
+> Última actualización: 19-11-2026 · **Los 8 pasos del plan completos** y validados en dos teléfonos
 > Proyecto Capstone Duoc UC · Metodología Cascada · Equipo: Miguel Pereira (jefe de proyecto), Baltazar Ordoñez (voz e interpretación), José Luis Donoso (interfaz y accesibilidad), Joaquín Mendoza (pruebas y documentación técnica)
 
 ## 1. Resumen ejecutivo
@@ -17,14 +17,15 @@ Funciones operativas: consultar la hora y la fecha, encender y apagar la lintern
 
 | Indicador | Valor |
 |---|---|
-| Pruebas automatizadas | 146 unitarias + 18 instrumentadas en el teléfono (8 de interfaz con Espresso), todas aprobadas |
+| Pasos del plan de desarrollo | 8 de 8 completos |
+| Requerimientos funcionales | 13 de 13 completos |
 | Requerimientos no funcionales | 8 de 8 cumplidos |
+| Casos de uso operativos | 8 de 8 |
+| Pruebas automatizadas | 146 unitarias + 18 instrumentadas en el teléfono (8 de interfaz con Espresso), todas aprobadas |
 | Tiempo de respuesta (RNF-03) | 424 ms en promedio y 572 ms en el peor caso desde la última palabra (meta ≤ 3 s) |
 | Memoria (RNF-04) | 38 MB en uso (4,4 % de la RAM del teléfono de 1 GB) |
-| Requerimientos funcionales | 13 de 13 completos |
-| Casos de uso operativos | 8 de 8 |
 | Control de versiones | Git, una rama por paso |
-| Dispositivo de prueba | Samsung J2 Core (SM-J260M), Android 8.1 Go, 1 GB RAM |
+| Dispositivos de prueba | Samsung J2 Core (SM-J260M), Android 8.1 Go, 1 GB de RAM (gama baja) · Samsung Galaxy S25 FE (gama alta) |
 
 ## 2. Entorno y herramientas
 
@@ -35,8 +36,10 @@ Funciones operativas: consultar la hora y la fecha, encender y apagar la lintern
 | Compilación | Gradle 8.2.1 + Android Gradle Plugin 8.2.2, con catálogo de versiones (`gradle/libs.versions.toml`) |
 | SDK | minSdk 26 (Android 8.0), compileSdk y targetSdk 34 |
 | JDK | 17 |
-| Librerías | AndroidX Core, AppCompat, Material Design 3, ConstraintLayout, Lifecycle (ViewModel), Fragment, Navigation Component, Room 2.6.1 (con KSP), DataStore 1.0.0, Kotlin Coroutines 1.7.3 |
-| Pruebas | JUnit 4.13.2, kotlinx-coroutines-test; Espresso configurado (sin pruebas aún) |
+| Librerías | AndroidX Core, AppCompat, Material Design 3, ConstraintLayout, RecyclerView 1.3.2, Lifecycle (ViewModel), Fragment, Navigation Component, Room 2.6.1 (con KSP), DataStore 1.0.0, Kotlin Coroutines 1.7.3 |
+| Seguridad | SQLCipher 4.6.1 (cifrado de la base de datos), Android Keystore (clave), PBKDF2 de `javax.crypto` (PIN) |
+| Pruebas | JUnit 4.13.2, kotlinx-coroutines-test, Espresso 3.5.1 y espresso-accessibility (verificador de accesibilidad de Google) |
+| Control de versiones | Git, una rama por paso y merge a `main` al validar cada paso en el teléfono |
 
 ## 3. Arquitectura implementada (MVVM por capas)
 
@@ -44,12 +47,14 @@ Funciones operativas: consultar la hora y la fecha, encender y apagar la lintern
 VIEW         ui/ (Fragments, Activity, AndroidResponseTexts) + res/ + AndroidManifest.xml
   │  eventos (tocar micrófono)                ▲ estado (StateFlow)
   ▼                                           │
-VIEWMODEL    ui/assistant/AssistantViewModel, AssistantUiState, ResponseTexts
+VIEWMODEL    AssistantViewModel (conversación) · ContactsViewModel · MessagesViewModel
+             SettingsViewModel · SecurityViewModel (PIN)
   │
   ▼
 MODEL        domain/   lógica de negocio (Kotlin puro, sin Android)
              services/ acceso al teléfono (detrás de interfaces)
-             data/     ContactRepository → Room · PreferencesRepository → DataStore
+             data/     ContactRepository → Room cifrado (SQLCipher)
+                       PreferencesRepository, PinRepository → DataStore
 
 di/AppContainer  → conecta las capas (inyección de dependencias manual)
 test/            → pruebas de cada capa
@@ -64,14 +69,15 @@ Las dependencias van siempre hacia abajo: la View conoce al ViewModel y el ViewM
 ### Principios de ingeniería de software aplicados
 
 - **Responsabilidad única (SRP):** cada clase tiene una sola función (normalizar texto, extraer horas, buscar contactos, interpretar, decidir).
-- **Inversión de dependencias (DIP):** el ViewModel depende de interfaces (`SpeechService`, `TtsService`, `ActionExecutor`, `ResponseTexts`), no de clases de Android.
+- **Inversión de dependencias (DIP):** los ViewModels dependen de interfaces (`SpeechService`, `TtsService`, `ActionExecutor`, `PhoneContactReader`, `ResponseTexts` y los Repository), no de clases de Android ni de Room o DataStore.
 - **Inyección de dependencias** por constructor, centralizada en `AppContainer`. Se eligió la opción manual en vez de Hilt por ser más simple de mantener para el equipo.
 - **Flujo de datos unidireccional:** los eventos van de la View al ViewModel y el estado del ViewModel a la View. Hay una sola fuente de verdad y el estado sobrevive a la rotación de pantalla.
 - **Modelado con tipos sellados** (`sealed interface`) para intenciones, decisiones y estados. El compilador obliga a manejar todos los casos, lo que refuerza el RNF-07.
 - **Dominio independiente de la plataforma:** `IntentParser` y `CommandProcessor` se prueban con JUnit sin dispositivo.
 - **Textos externalizados:** el dominio entrega decisiones estructuradas y la interfaz arma las frases desde `strings.xml`.
 - **Trazabilidad:** los comentarios del código citan los requerimientos que cumplen (`// RF-13`, `// RNF-06`).
-- **Análisis de causa raíz:** los errores en el dispositivo se diagnosticaron con Logcat antes de cambiar código (ver sección 7).
+- **Análisis de causa raíz:** los errores en el dispositivo se diagnosticaron con Logcat y capturas de pantalla antes de cambiar código (ver sección 8).
+- **Pruebas como red de seguridad:** cada funcionalidad nueva va con pruebas; las pruebas Espresso encontraron 5 problemas reales de diseño y accesibilidad que no se habían visto a mano (sección 8).
 
 ## 4. Estructura del proyecto
 
@@ -102,7 +108,7 @@ Las dependencias van siempre hacia abajo: la View conoce al ViewModel y el ViewM
 | `ui/security/` | View + ViewModel | `SecurityViewModel` (PIN del cuidador: bloqueado, desbloqueado, crear, cambiar, quitar) y `PinDialogs` (View) |
 | `ui/AppDialog.kt` | View | Diálogo responsive de toda la app: título, mensaje y campos se desplazan; los botones quedan siempre visibles abajo |
 | `services/` | Model | Interfaces `SpeechService`, `TtsService`, `ActionExecutor`, `PhoneContactReader` y sus implementaciones `Android*` |
-| `di/AppContainer.kt` | Infraestructura | Crea una sola vez la base de datos, el repositorio, el parser, el procesador y los servicios |
+| `di/AppContainer.kt` | Infraestructura | Crea una sola vez la base de datos cifrada, los Repository (contactos, preferencias y PIN), el parser, el procesador y los servicios |
 | `WithYouApp.kt` | Infraestructura | Clase `Application`; crea el `AppContainer` |
 | `res/layout/` | View | `activity_main.xml`, `fragment_home.xml`, `fragment_confirm.xml`, `fragment_clarify.xml`, `fragment_result.xml`, `fragment_contacts.xml`, `item_contact.xml`, `dialog_contact_form.xml`, `fragment_messages.xml`, `item_recipient.xml`, `fragment_settings.xml`, `dialog_app.xml`, `dialog_pin.xml` |
 | `res/values/` | View | `strings.xml` (todos los textos en español), `colors.xml`, `dimens.xml`, `themes.xml` |
@@ -129,7 +135,7 @@ Las dependencias van siempre hacia abajo: la View conoce al ViewModel y el ViewM
 
 | Componente | Función |
 |---|---|
-| `AndroidSpeechService` | Voz a texto con `SpeechRecognizer` en es-CL; hasta 3 transcripciones alternativas y resultados parciales. En equipos Android Go usa modo en línea; si el modo sin conexión falla, reintenta en línea automáticamente |
+| `AndroidSpeechService` | Voz a texto con `SpeechRecognizer` en es-CL; hasta 3 transcripciones alternativas y resultados parciales. Si el reconocimiento falla antes de que el usuario hable, sigue una cadena de respaldo: reconocedor predeterminado sin conexión → el mismo en línea → los demás reconocedores instalados (primero los de Google). Recuerda el que funcionó |
 | `AndroidTtsService` | Texto a voz con `TextToSpeech` en español (es-CL con alternativas de respaldo), a velocidad 0,9 |
 | `AndroidActionExecutor` | Linterna con `CameraManager` (sin permiso de cámara), volumen con `AudioManager` (sin bajarlo a cero), alarmas con `AlarmClock.ACTION_SET_ALARM` en el reloj del sistema (suenan aunque Withyou esté cerrada), llamadas con `ACTION_CALL` (o `ACTION_DIAL` sin permiso) y mensajes con `ACTION_SENDTO`, que abre la app de Mensajes con el texto listo |
 | `AndroidPhoneContactReader` | Lee el número elegido en la agenda del teléfono. Sin permiso `READ_CONTACTS`: Android da acceso solo al contacto elegido |
@@ -146,7 +152,7 @@ Las dependencias van siempre hacia abajo: la View conoce al ViewModel y el ViewM
 - **Pantalla Mensajes** (CU-03, mockup 3): "¿A quién le escribes?", contactos que se marcan con un check al elegirlos y micrófono grande "Dictar mensaje". Si no hay contactos, ofrece ir a Contactos.
 - **Pantalla Ajustes** (RF-12, mockup 7): tamaño del texto (100 % a 160 %) con vista previa, volumen de la voz (20 % a 100 %) con una muestra al soltar el control, y "Responder también con la voz". El tamaño se aplica a toda la app.
 - **Confirmar un mensaje**: la app lee el mensaje en voz alta y ofrece "Sí, enviar", "Corregir mensaje" (dictarlo de nuevo) y "Cancelar".
-- **Pantalla Resultado**: check verde, "Reproduciendo confirmación…" y vuelta automática al Inicio a los 8 s. En estas tres pantallas se oculta la barra inferior.
+- **Pantalla Resultado**: check verde, "Reproduciendo confirmación…" y vuelta automática al Inicio a los 8 s. En Confirmar, Aclarar y Resultado se oculta la barra inferior para no distraer.
 - **Navegación** con Navigation Component: Inicio, Mensajes, Contactos y Ajustes, todas a un nivel desde Inicio.
 - **Estilo:** paleta del mockup (`#1F4E8C`, `#E6F1FB`, `#CFE5F7`, `#1E9E57`, `#D32F2F`), texto base de 20sp, títulos de 28sp y elementos táctiles de 56dp o más.
 - **Permiso de micrófono:** diálogo previo en lenguaje simple; si se deniega de forma permanente, ofrece abrir los Ajustes del teléfono.
@@ -192,13 +198,13 @@ Las dependencias van siempre hacia abajo: la View conoce al ViewModel y el ViewM
 | CU | Estado |
 |---|---|
 | CU-01 Alarma | ✅ Operativo |
+| CU-02 Llamada | ✅ Operativo |
+| CU-03 Mensaje | ✅ Operativo |
 | CU-04 Linterna y volumen | ✅ Operativo |
 | CU-05 Hora y fecha | ✅ Operativo |
 | CU-06 Aclaración | ✅ Operativo |
+| CU-07 Contactos frecuentes | ✅ Operativo (también desde la agenda del teléfono) |
 | CU-08 Confirmar acción crítica | ✅ Operativo |
-| CU-02 Llamada | ✅ Operativo |
-| CU-07 Contactos frecuentes | ✅ Operativo |
-| CU-03 Mensaje | ✅ Operativo |
 
 ## 7. Pruebas
 
@@ -222,6 +228,10 @@ Las dependencias van siempre hacia abajo: la View conoce al ViewModel y el ViewM
 | `AssistantViewModelTest` | Conversación completa con servicios simulados: confirmar, cancelar, aclarar, pedir datos, resultado, llamadas, mensajes, volumen y voz desactivada, errores, tiempos de espera y medición de latencia | 63 |
 | **Total** | | **146, todas aprobadas** |
 
+Ejecución: `.\gradlew.bat testDebugUnitTest`
+
+**Técnica:** dobles de prueba (*fakes*) reemplazan el micrófono, la voz, el hardware y los Repository. El flujo completo se valida sin dispositivo, incluidos errores del reconocedor y tiempos de espera simulados.
+
 ### 7.1.1 Pruebas instrumentadas (en el teléfono)
 
 | Clase de prueba | Qué valida | Pruebas |
@@ -235,15 +245,13 @@ Las dependencias van siempre hacia abajo: la View conoce al ViewModel y el ViewM
 
 Las pruebas Espresso corren con el **verificador de accesibilidad de Google** (`espresso-accessibility`) activo en cada acción. Quitan el PIN del cuidador durante la prueba y lo restauran al terminar (`WithoutPinRule`).
 
-Se ejecutan con `adb shell am instrument` para no desinstalar la app del teléfono (Gradle la desinstala al terminar `connectedAndroidTest`).
-
-Ejecución: `.\gradlew.bat testDebugUnitTest`
-
-**Técnica:** dobles de prueba (*fakes*) reemplazan el micrófono, la voz y el hardware. El flujo completo se valida sin dispositivo, incluidos errores del reconocedor y tiempos de espera simulados.
+Se ejecutan con `adb shell am instrument` para no desinstalar la app del teléfono (Gradle la desinstala al terminar `connectedAndroidTest`). Las de interfaz necesitan el teléfono desbloqueado.
 
 ### 7.2 Pruebas en dispositivo real
 
 Samsung Galaxy J2 Core (SM-J260M), Android 8.1 Go, 1 GB de RAM (representa al público objetivo del RNF-04). Hora, fecha, linterna, volumen, **alarmas** y **llamadas** con confirmación operan correctamente por voz. Las alarmas quedan creadas en la app Reloj de Samsung. La llamada se inicia correctamente; el teléfono de prueba no tiene chip, por lo que el sistema muestra "sin red móvil", lo que confirma que la app entregó la llamada al sistema. Los **mensajes** dictados llegan a la app de Mensajes con el destinatario y el texto correctos; el usuario toca Enviar. Las **preferencias** (tamaño de texto, volumen de voz y respuesta por voz) se aplican y se mantienen al cerrar la app. El **PIN** protege Ajustes y los cambios en Contactos, y **agregar desde la agenda** trae el contacto elegido.
+
+**Samsung Galaxy S25 FE** (gama alta), probado por una persona ajena al desarrollo, con el APK instalado desde un archivo: la versión 0.1.0 no reconocía la voz (problema 10); la versión 0.1.1 funciona correctamente. La app quedó validada en un equipo de gama baja y en uno de gama alta.
 
 ### 7.3 Mediciones en el teléfono (RNF-03 y RNF-04)
 
@@ -287,13 +295,14 @@ Samsung Galaxy J2 Core (SM-J260M), Android 8.1 Go, 1 GB de RAM (representa al p�
 | 7 | El error del teléfono quedaba fuera de la vista del formulario; la indicación "Nombre (por…" se cortaba; errores en letra de 12 sp | Formulario sin desplazamiento automático y estilos estándar de Material | El formulario se desplaza hasta el error; indicación corta y ayudas y errores de 18 sp (RNF-01) |
 | 8 | La lista vacía de contactos era un elemento sin nombre para TalkBack | La lista seguía visible aunque no tuviera elementos | Se oculta cuando está vacía (detectado por el verificador de accesibilidad) |
 | 9 | La primera medición del RNF-03 daba ~100 ms y faltaban 3 de 10 frases | Se medía desde el "fin del habla" de Google, que llega después de un silencio; el registro del teléfono (256 KB) borró las primeras frases | Medición desde tres momentos y registro guardado en el computador durante la prueba |
+| 10 | En un Samsung Galaxy S25 FE el micrófono no funcionaba: "Este teléfono no tiene reconocimiento de voz disponible" | En teléfonos que no son Android Go la app pide primero el reconocimiento sin conexión; el S25 FE no tenía el español disponible sin conexión y respondía "idioma no disponible". La app solo reintentaba en línea ante errores de red, y en algunos Samsung el reconocedor predeterminado funciona solo dentro del teléfono | Cadena de respaldo: sin conexión → en línea → otros reconocedores instalados (primero Google), recordando el que funcionó; mensaje propio para "idioma no disponible" y registro del código de error. Versión 0.1.1, validada en el S25 FE |
 
 ## 9. Decisiones técnicas
 
 | Decisión | Justificación |
 |---|---|
 | `minSdk 26` (Android 8.0) | Cubre equipos antiguos de poca RAM (decisión abierta 1) |
-| Room para contactos e historial; DataStore para preferencias | Resuelve la inconsistencia entre documentos (decisión abierta 2) |
+| Room para contactos; DataStore para preferencias y el PIN | Resuelve la inconsistencia entre documentos (decisión abierta 2). El historial no se implementó (ver sección 10) |
 | La intención se llama `UserIntent` y no `Intent` | Evita confusión con `android.content.Intent` |
 | "A las 8" sin mañana/tarde pide aclaración | Una alarma a la hora equivocada es un error grave para el usuario objetivo |
 | Inyección de dependencias manual (no Hilt) | Más simple de mantener para el equipo |
@@ -301,15 +310,16 @@ Samsung Galaxy J2 Core (SM-J260M), Android 8.1 Go, 1 GB de RAM (representa al p�
 | Velocidad de voz 0,9 | Mejor comprensión para adultos mayores |
 | Reconocimiento en línea en equipos Android Go | No existe motor offline en esos equipos |
 | Un solo `AssistantViewModel` compartido por Inicio, Confirmar, Aclarar y Resultado | Una conversación pasa por varias pantallas y debe recordar qué está pendiente |
+| La fecha de Inicio la entrega el ViewModel (`todayHeader()`), no el Fragment | Regla de MVVM: la View no contiene lógica (corregido en el paso 4 tras revisar el código) |
 | La navegación la decide el estado (`MainActivity` observa `screen`) | Los Fragments no navegan ni deciden: solo dibujan y avisan eventos |
 | Elegir una opción en "No entendí bien" igual pasa por Confirmar si la acción es crítica | Cumple RF-10 sin excepciones; evita llamadas o alarmas por un toque accidental |
 | La alarma usa el reloj del sistema (`AlarmClock`) | Suena aunque la app esté cerrada y el usuario la ve en su Reloj de siempre |
-| Los ViewModels dependen de la interfaz `ContactRepository`, no de Room | Capa Repository de MVVM: se prueban con un repositorio en memoria y se puede cambiar la base de datos (p. ej. cifrarla en el paso 8) sin tocarlos |
+| Los ViewModels dependen de la interfaz `ContactRepository`, no de Room | Capa Repository de MVVM: se prueban con un repositorio en memoria y se pudo cifrar la base de datos en el paso 8 sin modificar ningún ViewModel |
 | El botón verde de llamar en Contactos también pasa por Confirmar | RF-10 sin excepciones: evita llamadas por un toque accidental |
 | Llamada con `ACTION_CALL` y respaldo `ACTION_DIAL` | Decisión abierta 4 del diseño: llama directo tras confirmar; si no hay permiso, abre el teléfono con el número marcado |
 | El permiso de llamadas se pide al guardar el primer contacto | Es cuando el cuidador configura la app; se explica antes en lenguaje simple (RNF-06) |
 | Al iniciar una llamada la app no habla (solo muestra el resultado) | Excepción justificada al RF-13: la voz sonaría encima de la llamada |
-| Validación de teléfono en un solo lugar (`ContactValidator`) | La usan el formulario y el `CommandProcessor`; evita reglas duplicadas que se contradigan |
+| Validación de teléfono en un solo lugar (`ContactValidator`) | La usan el formulario, la importación desde la agenda y el `CommandProcessor`; evita reglas duplicadas que se contradigan |
 | Mensajes con `ACTION_SENDTO`: se abre Mensajes con el texto listo y el usuario toca Enviar | Decisión abierta 5 del diseño, **ratificada por el equipo tras probarla** (06-11-2026): no requiere el permiso peligroso `SEND_SMS`, que Google Play restringe, y el usuario ve el SMS antes de enviarlo |
 | Al dictar desde Mensajes, la pregunta "¿Qué le quieres decir?" se muestra pero no se dice | El micrófono ya está escuchando y captaría la voz de la app |
 | Permiso del micrófono en un componente reutilizable (`MicPermissionRequester`) | Inicio y Mensajes lo necesitan; evita duplicar lógica de la View |
@@ -323,6 +333,7 @@ Samsung Galaxy J2 Core (SM-J260M), Android 8.1 Go, 1 GB de RAM (representa al p�
 | PIN guardado como hash PBKDF2 con sal, se bloquea al salir de la pantalla | Aunque se lea el archivo no se obtiene el PIN; no queda desbloqueado por olvido |
 | Todos los diálogos con `AppDialog` (botones fijos abajo) | Diseño responsive: funciona en pantallas pequeñas, con texto al 160 % y con teclado abierto |
 | Agregar contactos eligiendo en la agenda (sin `READ_CONTACTS`) en vez de importar todos | Decidido con el equipo (18-11-2026): no requiere permisos (RNF-06) y mantiene la lista corta de frecuentes |
+| Cadena de respaldo de reconocedores de voz | Cada marca y modelo trae reconocedores distintos (Android Go sin motor sin conexión, Samsung con un reconocedor solo local); probar alternativas antes de mostrar un error hace que la app funcione en más teléfonos sin pedir configuración al usuario (RNF-07) |
 
 ## 10. Supuestos y limitaciones
 
@@ -346,4 +357,14 @@ Los 8 pasos del plan están completos. Queda:
 - **Reconocimiento de voz sin internet en Android Go:** evaluar un reconocedor incluido en la app (p. ej. Vosk), ver sección 10.
 - **Escucha automática después de una pregunta** ("¿A qué hora?") sin tener que tocar el micrófono.
 
-**Corregido en el paso 4:** el formato de la fecha de Inicio salió del Fragment y ahora lo entrega el ViewModel (`todayHeader()`), cumpliendo la regla de que la View no contiene lógica.
+## 12. Entregable
+
+| Elemento | Detalle |
+|---|---|
+| Aplicación | `Withyou-v0.1.1.apk` (versión de prueba *debug*, 27,3 MB), generada desde `main`. Reemplaza a la 0.1.0 (ver problema 10); se instala encima sin perder datos |
+| Código fuente | Repositorio Git del proyecto (rama `main`) |
+| Evidencia de pruebas | Reporte de JUnit en `app/build/reports/tests/testDebugUnitTest/index.html`; tiempos del RNF-03 en `docs/evidencia-rnf03-latencias.log` |
+
+**Requisitos del teléfono:** Android 8.0 o superior, internet (en Android Go el reconocimiento de voz lo necesita) y "Servicios de voz de Google" activado.
+
+**Instalación:** abrir el APK, permitir la instalación desde esa fuente y, si Google Play Protect lo advierte, elegir "Instalar de todas formas" (la app no viene de la tienda). La versión *debug* está firmada con una clave de desarrollo; para entregar a usuarios conviene una versión *release* firmada con una clave del proyecto.

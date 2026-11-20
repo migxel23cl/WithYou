@@ -40,7 +40,10 @@ enum class SpeechError {
     BUSY,
     NO_PERMISSION,
 
-    /** El teléfono no tiene reconocimiento de voz o no soporta el idioma. */
+    /** El teléfono no tiene reconocimiento de voz. */
     UNAVAILABLE,
+
+    /** El reconocedor no tiene el español disponible (ni sin conexión ni en línea). */
+    LANGUAGE,
     OTHER,
 }

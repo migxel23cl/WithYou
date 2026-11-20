@@ -9,6 +9,7 @@ import cl.withyou.app.domain.model.Slot
 import cl.withyou.app.domain.model.TimeSpec
 import cl.withyou.app.domain.model.UserIntent
 import cl.withyou.app.domain.model.VolumeDirection
+import cl.withyou.app.domain.validation.AlarmLabelPolicy
 
 /**
  * Interpreta una frase en español de Chile y devuelve hasta 3 intenciones candidatas
@@ -28,12 +29,21 @@ class IntentParser(
         if (words.isNotEmpty()) {
             val exclusive = detectYesNo(words, candidates)
             if (!exclusive) {
-                val time = timeExtractor.extract(words)
                 val mentionsAlarm = ALARM.containsMatchIn(normalized)
+                // El nombre de la alarma ("para tomar la pastilla") no se usa para entender la hora
+                // ni se confunde con una llamada o un mensaje ("recuérdame llamar a María").
+                val label = if (mentionsAlarm) AlarmLabelExtractor.extract(tokens) else null
+                val timeWords = if (label == null) words else words.subList(0, label.start) + words.subList(label.end, words.size)
+                val time = timeExtractor.extract(timeWords)
 
-                detectMessage(normalized, tokens, contacts, candidates)
-                detectCall(normalized, tokens, contacts, candidates)
-                if (mentionsAlarm) candidates += Candidate(UserIntent.SetAlarm(time.time, time.day), STRONG)
+                if (label == null) {
+                    detectMessage(normalized, tokens, contacts, candidates)
+                    detectCall(normalized, tokens, contacts, candidates)
+                }
+                if (mentionsAlarm) {
+                    val alarmLabel = AlarmLabelPolicy.clean(label?.label)
+                    candidates += Candidate(UserIntent.SetAlarm(time.time, time.day, alarmLabel), STRONG)
+                }
                 detectFlashlight(normalized, candidates)
                 detectVolume(normalized, candidates)
                 if (!mentionsAlarm) detectTimeAndDate(normalized, words, candidates)
@@ -78,6 +88,8 @@ class IntentParser(
                     else -> null
                 }
             }
+            slot == Slot.ALARM_LABEL && intent is UserIntent.SetAlarm ->
+                AlarmLabelPolicy.clean(originalText(tokens, 0))?.let { intent.copy(label = it) }
             slot == Slot.MESSAGE_TEXT && intent is UserIntent.SendMessage ->
                 intent.copy(text = originalText(tokens, 0))
             else -> null
@@ -301,7 +313,8 @@ class IntentParser(
                 "comunicarme con|conectame con|hablar con)\\b(?: (.+))?",
         )
         val ALARM = Regex(
-            "\\b(?:alarma|alarmas|despiertame|despiertenme|despertador|despertarme|despertar|levantarme)\\b",
+            "\\b(?:alarma|alarmas|despiertame|despiertenme|despertador|despertarme|despertar|levantarme|" +
+                "recuerdame|recuerdeme|recordarme|recordatorio)\\b",
         )
         val LIGHT = Regex("\\b(?:linterna|luz|foco|lampara)\\b")
         val LIGHT_ON = Regex(

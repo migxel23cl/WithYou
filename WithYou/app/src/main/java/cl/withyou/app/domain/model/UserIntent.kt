@@ -7,9 +7,11 @@ package cl.withyou.app.domain.model
  */
 sealed interface UserIntent {
 
+    /** [label] es el nombre de la alarma ("Tomar la pastilla"); null si no se dijo. */
     data class SetAlarm(
         val time: TimeSpec,
         val day: AlarmDay = AlarmDay.UNSPECIFIED,
+        val label: String? = null,
     ) : UserIntent
 
     data class Call(val target: ContactTarget) : UserIntent

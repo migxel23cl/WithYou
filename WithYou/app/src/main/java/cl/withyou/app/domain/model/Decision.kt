@@ -36,7 +36,7 @@ enum class ClarificationReason {
     CONTACT_NOT_FOUND,
 }
 
-enum class Slot { TIME, CONTACT, MESSAGE_TEXT }
+enum class Slot { TIME, CONTACT, MESSAGE_TEXT, ALARM_LABEL }
 
 enum class RejectReason {
     INVALID_TIME,

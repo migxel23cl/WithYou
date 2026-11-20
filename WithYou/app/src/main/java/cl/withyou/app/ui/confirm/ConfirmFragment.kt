@@ -12,6 +12,7 @@ import cl.withyou.app.databinding.FragmentConfirmBinding
 import cl.withyou.app.ui.assistant.AssistantScreen
 import cl.withyou.app.ui.assistant.AssistantUiState
 import cl.withyou.app.ui.assistant.AssistantViewModel
+import cl.withyou.app.ui.assistant.SecondaryAction
 import cl.withyou.app.ui.assistant.handleBackWith
 import cl.withyou.app.ui.assistant.renderAnswerMic
 import cl.withyou.app.ui.assistant.renderHeard
@@ -29,7 +30,7 @@ class ConfirmFragment : Fragment(R.layout.fragment_confirm) {
 
         binding.confirmButton.setOnClickListener { viewModel.onConfirm() }
         binding.cancelButton.setOnClickListener { viewModel.onCancel() }
-        binding.redictateButton.setOnClickListener { viewModel.onRedictate() }
+        binding.redictateButton.setOnClickListener { viewModel.onSecondaryAction() }
         binding.micButton.setOnClickListener { viewModel.onMicClicked() }
         handleBackWith(viewModel)
 
@@ -54,7 +55,14 @@ class ConfirmFragment : Fragment(R.layout.fragment_confirm) {
             binding.confirmDetail.visibility = if (it.detail.isBlank()) View.GONE else View.VISIBLE
             binding.confirmButton.text = it.confirmLabel
         }
-        binding.redictateButton.visibility = if (state.canRedictate) View.VISIBLE else View.GONE
+        val secondaryText = when (state.secondaryAction) {
+            SecondaryAction.REDICTATE_MESSAGE -> R.string.redictate_message
+            SecondaryAction.NAME_ALARM -> R.string.name_alarm
+            SecondaryAction.RENAME_ALARM -> R.string.rename_alarm
+            SecondaryAction.NONE -> null
+        }
+        binding.redictateButton.visibility = if (secondaryText != null) View.VISIBLE else View.GONE
+        if (secondaryText != null) binding.redictateButton.setText(secondaryText)
         binding.assistantMessage.text = state.message
         renderHeard(binding.heardText, state)
         renderAnswerMic(binding.micButton, binding.micLabel, state)

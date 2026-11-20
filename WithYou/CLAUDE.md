@@ -186,6 +186,7 @@ Todo a ≤ 2 niveles desde Inicio (RNF-02).
 ## 10.1 Estado actual
 
 Avance detallado (trazabilidad de requerimientos, pruebas, problemas y decisiones) en [`docs/avance-fase2.md`](docs/avance-fase2.md). **Actualizarlo al terminar cada paso.**
+Para retomar el proyecto, leer primero [`docs/nota-traspaso.md`](docs/nota-traspaso.md) (estado, puesta en marcha, trampas conocidas y próximos pasos).
 
 - ✅ **Los 8 pasos completos** (13 de 13 RF, 8 de 8 RNF): todo funciona en el teléfono, incluido cifrado (SQLCipher + Keystore), PIN del cuidador, accesibilidad verificada con Espresso, RNF-03 medido (424 ms promedio) y agregar contactos desde la agenda.
 - 🧭 `AssistantViewModel` (en `ui/assistant/`) es el único ViewModel de la conversación; lo comparten Inicio, Confirmar, Aclarar y Resultado. `MainActivity` navega según `AssistantUiState.screen`.
@@ -197,6 +198,7 @@ Avance detallado (trazabilidad de requerimientos, pruebas, problemas y decisione
 - 🧪 Pruebas instrumentadas: correr con `adb shell am instrument` (Gradle desinstala la app al terminar `connectedAndroidTest`). Las de interfaz necesitan la pantalla desbloqueada; `WithoutPinRule` quita y restaura el PIN.
 - 🌿 Git: una rama por paso (`feature/paso-N-...`), commits en español.
 - ⚠️ En Android Go el reconocimiento de voz requiere internet (no hay motor offline).
+- 🎙️ `AndroidSpeechService` usa una cadena de respaldo (sin conexión → en línea → otros reconocedores instalados, primero Google) porque cada teléfono trae reconocedores distintos (corrección del S25 FE, versión 0.1.1). Si falla en un modelo nuevo, revisar el registro `WithYou.Speech`.
 
 ## 11. Convenciones
 

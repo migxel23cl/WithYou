@@ -22,6 +22,8 @@ Thumbs.db
 
 # Logs
 *.log
+# Excepto la evidencia de pruebas del informe (p. ej. tiempos del RNF-03)
+!docs/*.log
 
 # Configuración local de Claude Code
 .claude/settings.local.json

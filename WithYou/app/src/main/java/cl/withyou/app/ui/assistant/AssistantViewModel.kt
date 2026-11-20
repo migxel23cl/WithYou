@@ -198,6 +198,24 @@ class AssistantViewModel(
     }
 
     /** Botón "Corregir mensaje" de Confirmar: se dicta el texto de nuevo (CU-03). */
+    /** Botón adicional de Confirmar: corregir el mensaje o ponerle nombre a la alarma. */
+    fun onSecondaryAction() {
+        when (_uiState.value.secondaryAction) {
+            SecondaryAction.REDICTATE_MESSAGE -> onRedictate()
+            SecondaryAction.NAME_ALARM, SecondaryAction.RENAME_ALARM -> onNameAlarm()
+            SecondaryAction.NONE -> Unit
+        }
+    }
+
+    /** "Ponerle nombre" a la alarma por confirmar: se dicta el nombre y se vuelve a confirmar. */
+    fun onNameAlarm() {
+        val alarm = (pending as? Pending.Confirmation)?.intent as? UserIntent.SetAlarm ?: return
+        stopListeningIfNeeded()
+        pending = Pending.SlotFill(alarm, Slot.ALARM_LABEL)
+        _uiState.value = AssistantUiState(message = texts.askForSlot(Slot.ALARM_LABEL))
+        onMicClicked()
+    }
+
     fun onRedictate() {
         val message = (pending as? Pending.Confirmation)?.intent as? UserIntent.SendMessage ?: return
         stopListeningIfNeeded()
@@ -306,8 +324,15 @@ class AssistantViewModel(
 
     /** Respuesta a "¿A qué hora?" y similares. Si dice otra cosa, se toma como instrucción nueva. */
     private fun onSlotAnswer(phrases: List<String>, slotFill: Pending.SlotFill) {
-        if (slotFill.slot == Slot.MESSAGE_TEXT && bestParse(phrases).second.best.intent == UserIntent.Deny) {
+        val saidNo = bestParse(phrases).second.best.intent == UserIntent.Deny
+        if (slotFill.slot == Slot.MESSAGE_TEXT && saidNo) {
             onCancel()
+            return
+        }
+        // "No" al pedir el nombre de la alarma: se vuelve a confirmar la alarma tal como estaba.
+        if (slotFill.slot == Slot.ALARM_LABEL && saidNo) {
+            pending = Pending.None
+            askConfirmation(null, slotFill.intent)
             return
         }
         val filled = phrases.firstNotNullOfOrNull { phrase ->
@@ -423,7 +448,12 @@ class AssistantViewModel(
                 heard = heard,
                 message = confirmation.question,
                 confirmation = confirmation,
-                canRedictate = intent is UserIntent.SendMessage,
+                secondaryAction = when {
+                    intent is UserIntent.SendMessage -> SecondaryAction.REDICTATE_MESSAGE
+                    intent is UserIntent.SetAlarm && intent.label == null -> SecondaryAction.NAME_ALARM
+                    intent is UserIntent.SetAlarm -> SecondaryAction.RENAME_ALARM
+                    else -> SecondaryAction.NONE
+                },
             ),
         )
     }
@@ -481,7 +511,8 @@ class AssistantViewModel(
                     respondHome(null, texts.actionFailed(), ResponseKind.ERROR)
                     return
                 }
-                when (executor.setAlarm(time.hour, time.minute, texts.alarmLabel())) {
+                // El Reloj del teléfono muestra este nombre cuando suena la alarma.
+                when (executor.setAlarm(time.hour, time.minute, intent.label ?: texts.alarmLabel())) {
                     ActionResult.SUCCESS -> showResult(texts.alarmSet(intent))
                     ActionResult.NOT_SUPPORTED -> respondHome(null, texts.alarmNotSupported(), ResponseKind.ERROR)
                     ActionResult.AT_LIMIT, ActionResult.NEEDS_USER_STEP, ActionResult.FAILED ->

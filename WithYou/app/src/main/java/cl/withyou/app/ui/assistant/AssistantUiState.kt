@@ -19,9 +19,15 @@ data class AssistantUiState(
     val confirmation: ConfirmationTexts? = null,
     /** Opciones de "¿Quisiste decir…?" (pantalla Aclarar), como máximo 3. */
     val options: List<String> = emptyList(),
-    /** En Confirmar, muestra "Corregir mensaje" (solo para mensajes, CU-03). */
-    val canRedictate: Boolean = false,
-)
+    /** Botón adicional de Confirmar: "Corregir mensaje" o "Ponerle nombre" a la alarma. */
+    val secondaryAction: SecondaryAction = SecondaryAction.NONE,
+) {
+    /** En Confirmar se puede volver a dictar el mensaje (CU-03). */
+    val canRedictate: Boolean get() = secondaryAction == SecondaryAction.REDICTATE_MESSAGE
+}
+
+/** Acción adicional de la pantalla Confirmar, según lo que se confirma. */
+enum class SecondaryAction { NONE, REDICTATE_MESSAGE, NAME_ALARM, RENAME_ALARM }
 
 enum class AssistantScreen { HOME, CONFIRM, CLARIFY, RESULT }
 

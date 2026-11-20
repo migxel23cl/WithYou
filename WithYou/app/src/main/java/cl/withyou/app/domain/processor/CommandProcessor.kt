@@ -84,7 +84,7 @@ class CommandProcessor(
                 val current = now()
                 val target = current.plusMinutes(time.minutes.toLong())
                 val day = if (target.toLocalDate() == current.toLocalDate()) AlarmDay.TODAY else AlarmDay.TOMORROW
-                Decision.AskConfirmation(UserIntent.SetAlarm(TimeSpec.Exact(target.hour, target.minute), day))
+                Decision.AskConfirmation(intent.copy(time = TimeSpec.Exact(target.hour, target.minute), day = day))
             }
         }
         is TimeSpec.Exact -> decideExactAlarm(intent, time)

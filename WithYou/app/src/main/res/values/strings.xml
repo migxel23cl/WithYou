@@ -61,6 +61,7 @@
     <string name="speech_error_busy">El micrófono está ocupado. Espera un momento e intenta de nuevo.</string>
     <string name="speech_error_permission">Necesito permiso para usar el micrófono.</string>
     <string name="speech_error_unavailable">Este teléfono no tiene reconocimiento de voz disponible. Instala o actualiza la aplicación de Google.</string>
+    <string name="speech_error_language">No pude reconocer el español en este teléfono. Revisa que tengas internet e intenta de nuevo.</string>
     <string name="speech_error_other">Algo salió mal al escucharte. Intenta de nuevo.</string>
 
     <!-- Pantalla Confirmar (CU-08, RF-10) -->
@@ -68,6 +69,11 @@
     <string name="confirm_alarm_title">¿Poner una alarma?</string>
     <string name="confirm_alarm_question">Voy a poner una alarma %1$s. ¿Confirmas?</string>
     <string name="confirm_alarm_button">Sí, poner alarma</string>
+    <string name="confirm_alarm_detail_named">%1$s
+«%2$s»</string>
+    <string name="confirm_alarm_question_named">Voy a poner una alarma %1$s con el nombre «%2$s». ¿Confirmas?</string>
+    <string name="name_alarm">Ponerle nombre</string>
+    <string name="rename_alarm">Cambiar nombre</string>
     <string name="confirm_call_title">¿Llamar a %1$s?</string>
     <string name="confirm_call_question">Voy a llamar a %1$s. ¿Confirmas?</string>
     <string name="confirm_call_button">Sí, llamar</string>
@@ -98,6 +104,7 @@
     <!-- Datos que faltan -->
     <string name="ask_slot_time">¿A qué hora quieres la alarma? Toca el micrófono y dime la hora.</string>
     <string name="ask_slot_contact">¿A quién? Toca el micrófono y dime su nombre.</string>
+    <string name="ask_slot_alarm_label">¿Qué nombre le pongo a la alarma? Por ejemplo: «tomar la pastilla». Dímelo cuando el micrófono esté verde.</string>
     <string name="ask_slot_message">¿Qué le quieres decir? Díctame el mensaje cuando el micrófono esté verde.</string>
 
     <!-- Datos no válidos -->
@@ -113,6 +120,7 @@
     <string name="day_today">hoy</string>
     <string name="day_tomorrow">mañana</string>
     <string name="alarm_set">Listo, puse una alarma %1$s.</string>
+    <string name="alarm_set_named">Listo, puse la alarma «%1$s» %2$s.</string>
     <string name="alarm_not_supported">Este teléfono no tiene una aplicación de reloj para crear alarmas.</string>
 
     <!-- Pantalla Resultado -->

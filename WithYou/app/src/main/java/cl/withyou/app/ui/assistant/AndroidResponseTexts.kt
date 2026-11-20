@@ -69,6 +69,7 @@ class AndroidResponseTexts(context: Context) : ResponseTexts {
             SpeechError.BUSY -> R.string.speech_error_busy
             SpeechError.NO_PERMISSION -> R.string.speech_error_permission
             SpeechError.UNAVAILABLE -> R.string.speech_error_unavailable
+            SpeechError.LANGUAGE -> R.string.speech_error_language
             SpeechError.OTHER -> R.string.speech_error_other
         },
     )
@@ -76,10 +77,16 @@ class AndroidResponseTexts(context: Context) : ResponseTexts {
     override fun confirmation(intent: UserIntent): ConfirmationTexts = when (intent) {
         is UserIntent.SetAlarm -> {
             val moment = alarmMoment(intent)
+            val whenText = moment.replaceFirstChar { it.titlecase(locale) }
+            val label = intent.label
             ConfirmationTexts(
                 title = string(R.string.confirm_alarm_title),
-                detail = moment.replaceFirstChar { it.titlecase(locale) },
-                question = string(R.string.confirm_alarm_question, moment),
+                detail = if (label == null) whenText else string(R.string.confirm_alarm_detail_named, whenText, label),
+                question = if (label == null) {
+                    string(R.string.confirm_alarm_question, moment)
+                } else {
+                    string(R.string.confirm_alarm_question_named, moment, label)
+                },
                 confirmLabel = string(R.string.confirm_alarm_button),
             )
         }
@@ -142,6 +149,7 @@ class AndroidResponseTexts(context: Context) : ResponseTexts {
             Slot.TIME -> R.string.ask_slot_time
             Slot.CONTACT -> R.string.ask_slot_contact
             Slot.MESSAGE_TEXT -> R.string.ask_slot_message
+            Slot.ALARM_LABEL -> R.string.ask_slot_alarm_label
         },
     )
 
@@ -154,7 +162,14 @@ class AndroidResponseTexts(context: Context) : ResponseTexts {
         },
     )
 
-    override fun alarmSet(intent: UserIntent.SetAlarm): String = string(R.string.alarm_set, alarmMoment(intent))
+    override fun alarmSet(intent: UserIntent.SetAlarm): String {
+        val label = intent.label
+        return if (label == null) {
+            string(R.string.alarm_set, alarmMoment(intent))
+        } else {
+            string(R.string.alarm_set_named, label, alarmMoment(intent))
+        }
+    }
 
     override fun alarmNotSupported(): String = string(R.string.alarm_not_supported)
 

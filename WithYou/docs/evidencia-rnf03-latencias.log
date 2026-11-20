@@ -1,0 +1,12 @@
+--------- beginning of main
+--------- beginning of system
+11-18 22:40:58.681 D/WithYou.Assistant(20499): RNF-03 | desde la última palabra: null ms | desde fin del habla (Google): 131 ms | total desde tocar el micrófono: 2757 ms
+11-18 22:41:05.410 D/WithYou.Assistant(20499): RNF-03 | desde la última palabra: 64 ms | desde fin del habla (Google): 101 ms | total desde tocar el micrófono: 2886 ms
+11-18 22:41:10.334 D/WithYou.Assistant(20499): RNF-03 | desde la última palabra: 481 ms | desde fin del habla (Google): 82 ms | total desde tocar el micrófono: 2809 ms
+11-18 22:41:13.986 D/WithYou.Assistant(20499): RNF-03 | desde la última palabra: 479 ms | desde fin del habla (Google): 77 ms | total desde tocar el micrófono: 2668 ms
+11-18 22:41:17.774 D/WithYou.Assistant(20499): RNF-03 | desde la última palabra: 572 ms | desde fin del habla (Google): 142 ms | total desde tocar el micrófono: 2846 ms
+11-18 22:41:21.648 D/WithYou.Assistant(20499): RNF-03 | desde la última palabra: 366 ms | desde fin del habla (Google): 128 ms | total desde tocar el micrófono: 2579 ms
+11-18 22:41:24.868 D/WithYou.Assistant(20499): RNF-03 | desde la última palabra: 399 ms | desde fin del habla (Google): 132 ms | total desde tocar el micrófono: 2627 ms
+11-18 22:41:31.895 D/WithYou.Assistant(20499): RNF-03 | desde la última palabra: 548 ms | desde fin del habla (Google): 92 ms | total desde tocar el micrófono: 4512 ms
+11-18 22:41:37.849 D/WithYou.Assistant(20499): RNF-03 | desde la última palabra: 498 ms | desde fin del habla (Google): 95 ms | total desde tocar el micrófono: 2615 ms
+11-18 22:41:44.149 D/WithYou.Assistant(20499): RNF-03 | desde la última palabra: 408 ms | desde fin del habla (Google): 73 ms | total desde tocar el micrófono: 2582 ms

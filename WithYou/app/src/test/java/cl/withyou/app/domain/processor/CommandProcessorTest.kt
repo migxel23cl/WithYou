@@ -131,6 +131,14 @@ class CommandProcessorTest {
     }
 
     @Test
+    fun `una alarma relativa conserva su nombre`() {
+        assertEquals(
+            Decision.AskConfirmation(UserIntent.SetAlarm(TimeSpec.Exact(10, 30), AlarmDay.TODAY, "Sacar el pan")),
+            processor.decide(UserIntent.SetAlarm(TimeSpec.InMinutes(30), label = "Sacar el pan")),
+        )
+    }
+
+    @Test
     fun `hora invalida se rechaza`() {
         val intent = UserIntent.SetAlarm(TimeSpec.Exact(25, 0))
         assertEquals(Decision.Reject(RejectReason.INVALID_TIME, intent), processor.decide(intent))
