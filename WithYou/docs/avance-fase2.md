@@ -382,7 +382,7 @@ El anexo "Artefactos y documentos solicitados por metodología" pide cuatro docu
 | Documento | Archivo | Páginas |
 |---|---|---|
 | Requerimientos (SRS simplificado), con la sección de innovación | `1_Documento_Requerimientos_SRS.docx` | 13 |
-| Diseño: arquitectura, componentes, UML, modelo de datos, seguridad y despliegue | `2_Documento_Diseno.docx` | 12 |
+| Diseño: arquitectura, componentes, UML, modelo de datos, seguridad, despliegue y cambios respecto a la Fase 1 | `2_Documento_Diseno.docx` | 13 |
 | Plan de pruebas y evidencias | `3_Plan_Pruebas_Evidencias.docx` | 9 |
 | Manual técnico y de despliegue | `4_Manual_Tecnico_Despliegue.docx` | 6 |
 
