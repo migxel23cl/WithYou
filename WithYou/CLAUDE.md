@@ -190,7 +190,8 @@ Para retomar el proyecto, leer primero [`docs/nota-traspaso.md`](docs/nota-trasp
 
 - ✅ **Los 8 pasos completos** (13 de 13 RF, 8 de 8 RNF): todo funciona en el teléfono, incluido cifrado (SQLCipher + Keystore), PIN del cuidador, accesibilidad verificada con Espresso, RNF-03 medido (424 ms promedio) y agregar contactos desde la agenda.
 - 🧭 `AssistantViewModel` (en `ui/assistant/`) es el único ViewModel de la conversación; lo comparten Inicio, Confirmar, Aclarar y Resultado. `MainActivity` navega según `AssistantUiState.screen`.
-- ⏭️ Siguiente: pruebas con usuarios (adultos mayores) y publicar el repositorio en GitHub.
+- ⏭️ Siguiente: pruebas con usuarios (adultos mayores). El repositorio de entrega está en https://github.com/migxel23cl/WithYou (copia local en `Escritorio\Capstone Entrega\WithYou`; el código va en su subcarpeta `WithYou/`).
+- 📄 Documentos de Cascada (SRS, Diseño, Plan de Pruebas, Manual Técnico) en `Fase 2/Evidencias Proyecto` del repositorio de entrega; diagramas en `docs/diagramas/`. **Docker no aplica** (app nativa sin servidor): no agregarlo sin consultar.
 - 📱 Diseño responsive: todo diálogo usa `AppDialog` (botones fijos abajo); en pantallas con botones de acción, los botones van fijos fuera del `ScrollView`. `ResponsiveUiTest` lo comprueba con texto al 160 %.
 - 🔐 Seguridad: la base de datos se llama `withyou-secure.db` (cifrada); el PIN solo protege Ajustes y cambios en Contactos.
 - 🔤 El tamaño de texto se aplica con `fontScale` en `MainActivity.attachBaseContext`; los textos deben usar `sp` y los contenedores crecer con el contenido (nada de alturas fijas con texto).
@@ -198,6 +199,7 @@ Para retomar el proyecto, leer primero [`docs/nota-traspaso.md`](docs/nota-trasp
 - 🧪 Pruebas instrumentadas: correr con `adb shell am instrument` (Gradle desinstala la app al terminar `connectedAndroidTest`). Las de interfaz necesitan la pantalla desbloqueada; `WithoutPinRule` quita y restaura el PIN.
 - 🌿 Git: una rama por paso (`feature/paso-N-...`), commits en español.
 - ⚠️ En Android Go el reconocimiento de voz requiere internet (no hay motor offline).
+- ⏰ Las alarmas pueden tener nombre (`SetAlarm.label`): `AlarmLabelExtractor` lo separa de la hora antes de entenderla; es opcional y se puede dictar con "Ponerle nombre" en Confirmar (slot `ALARM_LABEL`). Versión actual: 0.1.2.
 - 🎙️ `AndroidSpeechService` usa una cadena de respaldo (sin conexión → en línea → otros reconocedores instalados, primero Google) porque cada teléfono trae reconocedores distintos (corrección del S25 FE, versión 0.1.1). Si falla en un modelo nuevo, revisar el registro `WithYou.Speech`.
 
 ## 11. Convenciones

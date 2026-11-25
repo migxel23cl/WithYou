@@ -7,6 +7,25 @@ Withyou es una capa de accesibilidad por voz: en vez de navegar menús, la perso
 > Proyecto Capstone · Ingeniería en Informática · Duoc UC
 > Profesor: Aldo Martínez · Metodología: Cascada · Fase 2 (Desarrollo) completa
 
+
+## Estructura del repositorio
+
+| Carpeta | Contenido |
+|---|---|
+| [`Antonio Varas_AldoMartinez_802°D_Grupo 6/`](Antonio%20Varas_AldoMartinez_802%C2%B0D_Grupo%206) | Evidencias del curso por fase (Fase 1, Fase 2, Fase 3), con evidencias individuales, grupales y del proyecto |
+| [`WithYou/`](WithYou) | Proyecto Android: código fuente, pruebas, diagramas y documentación técnica |
+
+## Documentos de la metodología (Cascada)
+
+| Documento | Archivo |
+|---|---|
+| 1. Requerimientos (SRS simplificado), con la sección de innovación | [1_Documento_Requerimientos_SRS.docx](Antonio%20Varas_AldoMartinez_802%C2%B0D_Grupo%206/Fase%202/Evidencias%20Proyecto/1_Documento_Requerimientos_SRS.docx) |
+| 2. Diseño: arquitectura, componentes, UML, modelo de datos y despliegue | [2_Documento_Diseno.docx](Antonio%20Varas_AldoMartinez_802%C2%B0D_Grupo%206/Fase%202/Evidencias%20Proyecto/2_Documento_Diseno.docx) |
+| 3. Plan de pruebas y evidencias | [3_Plan_Pruebas_Evidencias.docx](Antonio%20Varas_AldoMartinez_802%C2%B0D_Grupo%206/Fase%202/Evidencias%20Proyecto/3_Plan_Pruebas_Evidencias.docx) |
+| 4. Manual técnico y de despliegue | [4_Manual_Tecnico_Despliegue.docx](Antonio%20Varas_AldoMartinez_802%C2%B0D_Grupo%206/Fase%202/Evidencias%20Proyecto/4_Manual_Tecnico_Despliegue.docx) |
+| Evidencia de sistema: aplicación instalable | [Aplicacion_WithYou-v0.1.2.apk](Antonio%20Varas_AldoMartinez_802%C2%B0D_Grupo%206/Fase%202/Evidencias%20Proyecto/Aplicacion_WithYou-v0.1.2.apk) |
+| Evidencia de sistema: base de datos | [Modelo de datos](Antonio%20Varas_AldoMartinez_802%C2%B0D_Grupo%206/Fase%202/Evidencias%20Proyecto/Modelo_de_Datos.png) y [esquema de Room](WithYou/app/schemas/cl.withyou.app.data.local.AppDatabase/1.json) |
+
 ---
 
 ## Qué hace
@@ -16,6 +35,7 @@ Withyou es una capa de accesibilidad por voz: en vez de navegar menús, la perso
 | "¿Qué hora es?" · "¿Qué día es hoy?" | Responde la hora o la fecha |
 | "Enciende la linterna" · "Sube el volumen" | Lo hace de inmediato |
 | "Pon una alarma para mañana a las ocho" | Pide confirmación y la crea en el Reloj del teléfono |
+| "Recuérdame tomar la pastilla a las nueve" | Crea una alarma con el nombre "Tomar la pastilla" |
 | "Llama a María" | Busca en tus contactos frecuentes, confirma y llama |
 | "Dile a Pedro que llego tarde" | Te lee el mensaje en voz alta, confirma y abre Mensajes con el texto listo |
 
@@ -39,7 +59,7 @@ Withyou es una capa de accesibilidad por voz: en vez de navegar menús, la perso
 - **Internet:** en teléfonos Android Go el reconocimiento de voz no funciona sin conexión.
 - **"Servicios de voz de Google"** activado, para que la app pueda hablar.
 
-Se probó en un **Samsung Galaxy J2 Core** (Android 8.1 Go, 1 GB de RAM), el tipo de teléfono que tiene el usuario objetivo.
+Se probó en un **Samsung Galaxy J2 Core** (Android 8.1 Go, 1 GB de RAM), el tipo de teléfono que tiene el usuario objetivo, y en un **Samsung Galaxy S25 FE**. Como cada teléfono trae reconocedores de voz distintos, si uno falla la app prueba los demás instalados antes de mostrar un error.
 
 ## Resultados
 
@@ -48,11 +68,11 @@ Se probó en un **Samsung Galaxy J2 Core** (Android 8.1 Go, 1 GB de RAM), el tip
 | Requerimientos funcionales | 13 de 13 |
 | Requerimientos no funcionales | 8 de 8 |
 | Casos de uso | 8 de 8 operativos |
-| Pruebas automatizadas | 146 unitarias + 18 en el teléfono (8 de interfaz), todas aprobadas |
+| Pruebas automatizadas | 158 unitarias + 18 en el teléfono (8 de interfaz), todas aprobadas |
 | Tiempo de respuesta | **424 ms** en promedio desde la última palabra (meta ≤ 3 s) |
 | Memoria | 38 MB en un teléfono de 1 GB (4,4 % de la RAM) |
 
-El detalle completo (trazabilidad de requerimientos, pruebas, mediciones, problemas resueltos y decisiones técnicas) está en [`docs/avance-fase2.md`](docs/avance-fase2.md).
+El detalle completo (trazabilidad de requerimientos, pruebas, mediciones, problemas resueltos y decisiones técnicas) está en [`docs/avance-fase2.md`](WithYou/docs/avance-fase2.md).
 
 ## Arquitectura
 
@@ -105,13 +125,15 @@ app/src/main/java/cl/withyou/app/
 | Estado | ViewModel, StateFlow, Kotlin Coroutines |
 | Voz | `SpeechRecognizer` (es-CL) y `TextToSpeech` |
 | Interpretación | `IntentParser` propio, basado en reglas y patrones |
-| Datos | Room 2.6.1 cifrado con SQLCipher 4.6.1, Jetpack DataStore |
+| Base de datos | Local en el teléfono: Room 2.6.1 (SQLite) cifrado con SQLCipher 4.6.1, y Jetpack DataStore para preferencias |
+| Cloud | No usa servidor propio ni servicios en la nube. Solo el reconocedor de voz del sistema, que en Android Go necesita internet |
 | Pruebas | JUnit 4, kotlinx-coroutines-test, Espresso y espresso-accessibility |
 | Compilación | Gradle 8.2.1, Android Gradle Plugin 8.2.2 |
+| Versionado | Git y GitHub, una rama por funcionalidad |
 
 ## Cómo compilar y ejecutar
 
-1. Clona el repositorio y ábrelo en **Android Studio**.
+1. Clona el repositorio y abre la carpeta `WithYou/` en **Android Studio**.
 2. Android Studio crea `local.properties` con la ruta del SDK. Si compilas por consola, créalo con `sdk.dir=<ruta del Android SDK>`.
 3. Conecta un teléfono con **depuración USB** activada y presiona **Run**.
 
@@ -121,7 +143,13 @@ Por consola:
 ./gradlew assembleDebug
 ```
 
-El APK queda en `app/build/outputs/apk/debug/app-debug.apk`. En Windows usa `gradlew.bat`.
+El APK queda en `app/build/outputs/apk/debug/app-debug.apk`. En Windows usa `gradlew.bat`. Para instalarlo en el teléfono:
+
+```bash
+adb install -r app/build/outputs/apk/debug/app-debug.apk
+```
+
+**Docker no aplica:** Withyou es una app Android nativa que corre completa en el teléfono, sin servidor, API ni base de datos externa que contenerizar. El despliegue es instalar el APK. Tampoco usa variables de entorno ni claves de API. La justificación está en el Documento de Diseño (sección 8) y el paso a paso en el Manual Técnico.
 
 ## Pruebas
 
@@ -169,11 +197,28 @@ adb shell am instrument -w cl.withyou.app.test/androidx.test.runner.AndroidJUnit
 | José Luis Donoso | Interfaz y accesibilidad |
 | Joaquín Mendoza | Pruebas y documentación técnica |
 
+## Metodología
+
+El proyecto sigue la metodología **Cascada**: cada fase se termina y se valida antes de empezar la siguiente.
+
+| Fase | Contenido | Estado |
+|---|---|---|
+| Inicio | Problema, objetivos, Acta de Constitución, estado del arte | ✅ Fase 1 |
+| Análisis | Requerimientos funcionales y no funcionales, casos de uso, mockup | ✅ Fase 1 |
+| Diseño | Arquitectura, modelo de datos, seguridad | ✅ Fase 1 |
+| Desarrollo | 8 pasos, MVP primero: núcleo de interpretación → voz → hora, linterna y alarma → contactos y llamadas → mensajes → preferencias → seguridad y accesibilidad | ✅ Fase 2 |
+| Pruebas | Unitarias, integración, rendimiento y seguridad (hechas); usabilidad con adultos mayores (semana 14) | 🟡 En curso |
+| Cierre | Documentación final y presentación | ⏳ Fase 3 |
+
+Dentro del desarrollo se trabaja con **una rama de Git por paso o funcionalidad**, que se une a `main` solo después de pasar sus pruebas y de probarse en el teléfono.
+
 ## Documentación
 
-- [`docs/avance-fase2.md`](docs/avance-fase2.md): informe completo de la Fase 2.
-- [`docs/evidencia-rnf03-latencias.log`](docs/evidencia-rnf03-latencias.log): registro original de la medición del tiempo de respuesta.
-- [`CLAUDE.md`](CLAUDE.md): contexto, requerimientos, arquitectura y convenciones del proyecto.
+- [`docs/diagramas/`](WithYou/docs/diagramas/): diagramas de arquitectura, componentes, casos de uso, clases, secuencia y modelo de datos (fuente Mermaid e imagen).
+- [`docs/nota-traspaso.md`](WithYou/docs/nota-traspaso.md): **empieza aquí si vas a continuar el proyecto** (estado, cómo ponerlo a andar, trampas conocidas y próximos pasos).
+- [`docs/avance-fase2.md`](WithYou/docs/avance-fase2.md): informe completo de la Fase 2.
+- [`docs/evidencia-rnf03-latencias.log`](WithYou/docs/evidencia-rnf03-latencias.log): registro original de la medición del tiempo de respuesta.
+- [`CLAUDE.md`](WithYou/CLAUDE.md): contexto, requerimientos, arquitectura y convenciones del proyecto.
 
 ---
 

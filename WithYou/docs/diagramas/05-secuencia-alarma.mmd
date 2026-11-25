@@ -1,0 +1,28 @@
+sequenceDiagram
+    autonumber
+    actor U as Adulto mayor
+    participant V as Fragments Inicio y Confirmar
+    participant VM as AssistantViewModel
+    participant SR as SpeechService
+    participant P as IntentParser
+    participant CP as CommandProcessor
+    participant AE as ActionExecutor
+    participant T as TtsService
+    U->>V: Toca el micrófono
+    V->>VM: onMicClicked()
+    VM->>SR: startListening()
+    U->>SR: "Pon una alarma para mañana a las ocho de la mañana"
+    SR-->>VM: Results: hasta 3 transcripciones
+    VM->>P: parse(texto, contactos)
+    P-->>VM: ParseResult: SetAlarm 08:00, mañana, confianza alta
+    VM->>CP: process(resultado)
+    CP-->>VM: AskConfirmation(SetAlarm)
+    VM-->>V: UiState: pantalla Confirmar
+    VM->>T: speak("¿Confirmas la alarma para mañana a las 8:00?")
+    U->>V: Toca "Sí, crear alarma" o dice "sí"
+    V->>VM: onConfirm()
+    VM->>AE: setAlarm(8, 0, "Withyou")
+    AE-->>VM: SUCCESS: alarma creada en el Reloj
+    VM-->>V: UiState: pantalla Resultado
+    VM->>T: speak("Listo, alarma creada para las 8:00")
+    Note over V,VM: Vuelve solo al Inicio a los 8 segundos

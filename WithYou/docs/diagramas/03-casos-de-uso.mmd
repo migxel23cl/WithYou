@@ -1,0 +1,29 @@
+flowchart LR
+    subgraph ACT["Actores"]
+        direction TB
+        AM["«actor»<br/>Adulto mayor"]
+        CU["«actor»<br/>Cuidador o familiar"]
+    end
+    subgraph SYS["Sistema Withyou"]
+        direction TB
+        C1(["CU-01 Crear alarma por voz"])
+        C2(["CU-02 Llamar a un contacto"])
+        C3(["CU-03 Enviar mensaje dictado"])
+        C4(["CU-04 Linterna y volumen"])
+        C5(["CU-05 Consultar hora y fecha"])
+        C7(["CU-07 Gestionar contactos frecuentes"])
+        C9(["Configurar preferencias y PIN"])
+    end
+    subgraph INC["Casos incluidos y extensiones"]
+        direction TB
+        C8(["CU-08 Confirmar acción crítica"])
+        C6(["CU-06 Aclarar comando"])
+    end
+    AM --- C1 & C2 & C3 & C4 & C5 & C7
+    CU --- C7 & C9
+    C1 -. "«include»" .-> C8
+    C2 -. "«include»" .-> C8
+    C3 -. "«include»" .-> C8
+    C6 -. "«extend»" .-> C1
+    C6 -. "«extend»" .-> C2
+    C6 -. "«extend»" .-> C3

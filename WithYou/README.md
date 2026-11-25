@@ -16,6 +16,7 @@ Withyou es una capa de accesibilidad por voz: en vez de navegar menús, la perso
 | "¿Qué hora es?" · "¿Qué día es hoy?" | Responde la hora o la fecha |
 | "Enciende la linterna" · "Sube el volumen" | Lo hace de inmediato |
 | "Pon una alarma para mañana a las ocho" | Pide confirmación y la crea en el Reloj del teléfono |
+| "Recuérdame tomar la pastilla a las nueve" | Crea una alarma con el nombre "Tomar la pastilla" |
 | "Llama a María" | Busca en tus contactos frecuentes, confirma y llama |
 | "Dile a Pedro que llego tarde" | Te lee el mensaje en voz alta, confirma y abre Mensajes con el texto listo |
 
@@ -48,7 +49,7 @@ Se probó en un **Samsung Galaxy J2 Core** (Android 8.1 Go, 1 GB de RAM), el tip
 | Requerimientos funcionales | 13 de 13 |
 | Requerimientos no funcionales | 8 de 8 |
 | Casos de uso | 8 de 8 operativos |
-| Pruebas automatizadas | 146 unitarias + 18 en el teléfono (8 de interfaz), todas aprobadas |
+| Pruebas automatizadas | 158 unitarias + 18 en el teléfono (8 de interfaz), todas aprobadas |
 | Tiempo de respuesta | **424 ms** en promedio desde la última palabra (meta ≤ 3 s) |
 | Memoria | 38 MB en un teléfono de 1 GB (4,4 % de la RAM) |
 
@@ -105,9 +106,11 @@ app/src/main/java/cl/withyou/app/
 | Estado | ViewModel, StateFlow, Kotlin Coroutines |
 | Voz | `SpeechRecognizer` (es-CL) y `TextToSpeech` |
 | Interpretación | `IntentParser` propio, basado en reglas y patrones |
-| Datos | Room 2.6.1 cifrado con SQLCipher 4.6.1, Jetpack DataStore |
+| Base de datos | Local en el teléfono: Room 2.6.1 (SQLite) cifrado con SQLCipher 4.6.1, y Jetpack DataStore para preferencias |
+| Cloud | No usa servidor propio ni servicios en la nube. Solo el reconocedor de voz del sistema, que en Android Go necesita internet |
 | Pruebas | JUnit 4, kotlinx-coroutines-test, Espresso y espresso-accessibility |
 | Compilación | Gradle 8.2.1, Android Gradle Plugin 8.2.2 |
+| Versionado | Git y GitHub, una rama por funcionalidad |
 
 ## Cómo compilar y ejecutar
 
@@ -121,7 +124,13 @@ Por consola:
 ./gradlew assembleDebug
 ```
 
-El APK queda en `app/build/outputs/apk/debug/app-debug.apk`. En Windows usa `gradlew.bat`.
+El APK queda en `app/build/outputs/apk/debug/app-debug.apk`. En Windows usa `gradlew.bat`. Para instalarlo en el teléfono:
+
+```bash
+adb install -r app/build/outputs/apk/debug/app-debug.apk
+```
+
+**Docker no aplica:** Withyou es una app Android nativa que corre completa en el teléfono, sin servidor, API ni base de datos externa que contenerizar. El despliegue es instalar el APK. Tampoco usa variables de entorno ni claves de API. La justificación está en el Documento de Diseño (sección 8) y el paso a paso en el Manual Técnico.
 
 ## Pruebas
 
@@ -169,12 +178,29 @@ adb shell am instrument -w cl.withyou.app.test/androidx.test.runner.AndroidJUnit
 | José Luis Donoso | Interfaz y accesibilidad |
 | Joaquín Mendoza | Pruebas y documentación técnica |
 
+## Metodología
+
+El proyecto sigue la metodología **Cascada**: cada fase se termina y se valida antes de empezar la siguiente.
+
+| Fase | Contenido | Estado |
+|---|---|---|
+| Inicio | Problema, objetivos, Acta de Constitución, estado del arte | ✅ Fase 1 |
+| Análisis | Requerimientos funcionales y no funcionales, casos de uso, mockup | ✅ Fase 1 |
+| Diseño | Arquitectura, modelo de datos, seguridad | ✅ Fase 1 |
+| Desarrollo | 8 pasos, MVP primero: núcleo de interpretación → voz → hora, linterna y alarma → contactos y llamadas → mensajes → preferencias → seguridad y accesibilidad | ✅ Fase 2 |
+| Pruebas | Unitarias, integración, rendimiento y seguridad (hechas); usabilidad con adultos mayores (semana 14) | 🟡 En curso |
+| Cierre | Documentación final y presentación | ⏳ Fase 3 |
+
+Dentro del desarrollo se trabaja con **una rama de Git por paso o funcionalidad**, que se une a `main` solo después de pasar sus pruebas y de probarse en el teléfono.
+
 ## Documentación
 
+- [`docs/diagramas/`](docs/diagramas/): diagramas de arquitectura, componentes, casos de uso, clases, secuencia y modelo de datos (fuente Mermaid e imagen).
 - [`docs/nota-traspaso.md`](docs/nota-traspaso.md): **empieza aquí si vas a continuar el proyecto** (estado, cómo ponerlo a andar, trampas conocidas y próximos pasos).
 - [`docs/avance-fase2.md`](docs/avance-fase2.md): informe completo de la Fase 2.
 - [`docs/evidencia-rnf03-latencias.log`](docs/evidencia-rnf03-latencias.log): registro original de la medición del tiempo de respuesta.
 - [`CLAUDE.md`](CLAUDE.md): contexto, requerimientos, arquitectura y convenciones del proyecto.
+- Documentos formales de la metodología (Requerimientos SRS, Diseño, Plan de Pruebas y Manual Técnico): carpeta `Fase 2/Evidencias Proyecto` del repositorio de entrega.
 
 ---
 

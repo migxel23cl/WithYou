@@ -1,0 +1,21 @@
+flowchart TB
+    UI["«componente» Interfaz · ui/<br/>Inicio, Confirmar, Aclarar, Resultado,<br/>Mensajes, Contactos, Ajustes"]
+    CONV["«componente» Conversación<br/>AssistantViewModel · ResponseTexts"]
+    GES["«componente» Gestión<br/>ContactsViewModel · MessagesViewModel<br/>SettingsViewModel · SecurityViewModel"]
+    NLU["«componente» Interpretación · domain/<br/>IntentParser · CommandProcessor · TimeExtractor<br/>ContactMatcher · AlarmLabelExtractor · validadores"]
+    DATA["«componente» Datos · data/<br/>ContactRepository · PreferencesRepository · PinRepository"]
+    DEV["«componente» Servicios del teléfono · services/<br/>SpeechService · TtsService · ActionExecutor · PhoneContactReader"]
+    DI["«componente» AppContainer · di/"]
+    AND["«sistema externo» Android<br/>reconocedor de voz, motor de voz, Reloj,<br/>Teléfono, Mensajes, linterna, volumen, agenda"]
+    STO["«almacenamiento»<br/>Room + SQLCipher · DataStore · Keystore"]
+    UI -- "eventos y estado" --> CONV
+    UI -- "eventos y estado" --> GES
+    CONV -- "parse / process" --> NLU
+    CONV -- "contactos y preferencias" --> DATA
+    CONV -- "escuchar, hablar, ejecutar" --> DEV
+    GES --> DATA
+    GES -- "elegir contacto de la agenda" --> DEV
+    DATA --> STO
+    DEV --> AND
+    DI -. "crea e inyecta" .-> CONV
+    DI -. "crea e inyecta" .-> GES

@@ -1,0 +1,15 @@
+erDiagram
+    CONTACTS {
+        INTEGER id PK "autoincremental"
+        TEXT name "nombre, obligatorio"
+        TEXT phone "telefono validado, obligatorio"
+    }
+    PREFERENCIAS_DATASTORE {
+        FLOAT text_scale "1.0 a 1.6"
+        FLOAT voice_volume "0.2 a 1.0"
+        BOOLEAN voice_feedback "responder con la voz"
+    }
+    PIN_DATASTORE {
+        STRING pin_salt "sal aleatoria"
+        STRING pin_hash "hash PBKDF2 del PIN"
+    }

@@ -1,0 +1,106 @@
+classDiagram
+    direction LR
+    class AssistantViewModel {
+        +StateFlow uiState
+        +onMicClicked()
+        +onConfirm()
+        +onCancel()
+        +onOptionSelected(index)
+        +requestCall(contact)
+        +dictateMessageTo(contact)
+    }
+    class IntentParser {
+        +parse(text, contacts) ParseResult
+        +completeSlot(text, slot, intent, contacts)
+    }
+    class CommandProcessor {
+        +process(result) Decision
+        +decide(intent) Decision
+    }
+    class ContactMatcher {
+        +match(spokenName, contacts) ContactTarget
+    }
+    class TimeExtractor {
+        +extract(words) TimeSpec
+    }
+    class ParseResult {
+        +String normalizedText
+        +List candidates
+        +best() Candidate
+    }
+    class Candidate {
+        +UserIntent intent
+        +Double confidence
+    }
+    class UserIntent {
+        <<sealed interface>>
+    }
+    class SetAlarm {
+        +TimeSpec time
+        +AlarmDay day
+        +String label
+    }
+    class Call {
+        +ContactTarget target
+    }
+    class SendMessage {
+        +ContactTarget target
+        +String text
+    }
+    class Decision {
+        <<sealed interface>>
+    }
+    class Execute
+    class AskConfirmation
+    class AskClarification
+    class AskForSlot
+    class Reject
+    class Contact {
+        +Long id
+        +String name
+        +String phone
+    }
+    class SpeechService {
+        <<interface>>
+        +startListening()
+        +stopListening()
+    }
+    class TtsService {
+        <<interface>>
+        +speak(text, volume)
+    }
+    class ActionExecutor {
+        <<interface>>
+        +setAlarm(hour, minute, label)
+        +call(phone)
+        +sendMessage(phone, text)
+        +setFlashlight(on)
+        +changeVolume(direction)
+    }
+    class ContactRepository {
+        <<interface>>
+        +Flow contacts
+        +save(contact)
+        +delete(id)
+    }
+    AssistantViewModel --> IntentParser
+    AssistantViewModel --> CommandProcessor
+    AssistantViewModel --> SpeechService
+    AssistantViewModel --> TtsService
+    AssistantViewModel --> ActionExecutor
+    AssistantViewModel --> ContactRepository
+    IntentParser --> TimeExtractor
+    IntentParser --> ContactMatcher
+    IntentParser ..> ParseResult : crea
+    ParseResult "1" *-- "1..3" Candidate
+    Candidate --> UserIntent
+    CommandProcessor ..> Decision : devuelve
+    UserIntent <|.. SetAlarm
+    UserIntent <|.. Call
+    UserIntent <|.. SendMessage
+    Decision <|.. Execute
+    Decision <|.. AskConfirmation
+    Decision <|.. AskClarification
+    Decision <|.. AskForSlot
+    Decision <|.. Reject
+    ContactRepository ..> Contact

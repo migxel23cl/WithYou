@@ -1,6 +1,6 @@
 # Nota de traspaso — Withyou
 
-> 19-11-2026 · Preparada por Miguel Pereira (jefe de proyecto)
+> 25-11-2026 · Versión de la app: **0.1.2** · Preparada por Miguel Pereira (jefe de proyecto)
 > Para quien continúe el proyecto: el equipo (Baltazar, José Luis, Joaquín), otra sesión de trabajo o una IA.
 > El informe completo está en [`avance-fase2.md`](avance-fase2.md); esta nota resume lo necesario para **seguir trabajando**.
 
@@ -8,7 +8,7 @@
 
 ## 1. Estado en una línea
 
-**La Fase 2 (Desarrollo) está terminada:** los 8 pasos del plan, los 13 RF, los 8 RNF y los 8 casos de uso funcionan en un teléfono real. Todo está en `main`, con 146 pruebas unitarias y 18 en el teléfono aprobadas. **Falta:** pruebas con adultos mayores, una prueba manual con TalkBack y publicar el repositorio en GitHub.
+**La Fase 2 (Desarrollo) está terminada:** los 8 pasos del plan, los 13 RF, los 8 RNF y los 8 casos de uso funcionan y están validados en **dos teléfonos** (Samsung J2 Core de gama baja y Samsung S25 FE de gama alta). Todo está en `main`, con **158 pruebas unitarias y 18 en el teléfono**, todas aprobadas. Después del plan se agregaron: importar contactos desde la agenda, la corrección del reconocimiento de voz (0.1.1) y el nombre de las alarmas por voz (0.1.2). **Falta:** pruebas con adultos mayores y una prueba manual con TalkBack. El repositorio ya está publicado en GitHub, con los documentos de la metodología (25-11-2026).
 
 ## 2. Qué se construyó (resumen por paso)
 
@@ -24,6 +24,7 @@
 | 8 | **Cifrado** (SQLCipher + Keystore), **PIN del cuidador**, accesibilidad, **diseño responsive**, Espresso y mediciones | `feature/paso-8-seguridad-accesibilidad` |
 | Extra | **Agregar contactos desde la agenda** del teléfono, sin permisos | `feature/importar-contactos-agenda` |
 | Corrección | **Reconocimiento de voz en más teléfonos** (Samsung S25 FE): cadena de respaldo de reconocedores. Versión 0.1.1 | `fix/reconocimiento-sin-idioma-offline` |
+| Extra | **Nombre de la alarma por voz** ("para tomar la pastilla", "recuérdame…") y botón "Ponerle nombre" en Confirmar. Versión 0.1.2 | `feature/nombre-alarma` |
 
 Todas las ramas ya están unidas con `main`. Se pueden borrar o conservar como historial.
 
@@ -32,9 +33,12 @@ Todas las ramas ya están unidas con `main`. Se pueden borrar o conservar como h
 | Qué | Dónde |
 |---|---|
 | Código fuente | `C:\Users\Miguel Pereira\Desktop\Claude Code\WithYou` (repositorio Git, rama `main`) |
-| App instalable | `Escritorio\Withyou-v0.1.1.apk` (versión *debug*, 27,3 MB). La 0.1.0 quedó obsoleta: no reconoce la voz en algunos teléfonos |
+| App instalable | `Escritorio\Withyou-v0.1.2.apk` (versión *debug*, 27,3 MB). Las versiones anteriores quedaron obsoletas |
 | Informe de la Fase 2 | `docs/avance-fase2.md` (copia en `Escritorio\Informe-Fase2-Withyou.md`) |
 | Portada para GitHub | `README.md` |
+| Repositorio de entrega (GitHub) | https://github.com/migxel23cl/WithYou · copia local en `Escritorio\Capstone Entrega\WithYou` (evidencias + código en `WithYou/`) |
+| Documentos de Cascada (SRS, Diseño, Pruebas, Manual) | `Fase 2/Evidencias Proyecto` del repositorio de entrega |
+| Diagramas UML, ER y arquitectura | `docs/diagramas/` (fuente Mermaid + imagen) |
 | Contexto, reglas y estado del proyecto | `CLAUDE.md` (lo lee Claude Code al iniciar cada sesión) |
 | Evidencia del tiempo de respuesta | `docs/evidencia-rnf03-latencias.log` |
 | Reporte de pruebas unitarias | `app/build/reports/tests/testDebugUnitTest/index.html` (se genera al correr las pruebas) |
@@ -71,6 +75,9 @@ View (Fragments + XML)  ──eventos──►  ViewModel (StateFlow)  ──►
 - **`MainActivity`** muestra la pantalla que indica `AssistantUiState.screen`. Los Fragments no navegan entre ellos.
 - **Los demás ViewModels** son `ContactsViewModel`, `MessagesViewModel`, `SettingsViewModel` y `SecurityViewModel` (PIN).
 - **Cómo se entiende una frase:** `IntentParser` propone hasta 3 intenciones con su confianza, y `CommandProcessor` decide si ejecutar, confirmar, aclarar, pedir un dato o rechazar.
+- **Nombre de la alarma:** `AlarmLabelExtractor` separa el nombre ("para tomar la pastilla", "que diga…", "recuérdame…") **antes** de entender la hora, y `AlarmLabelPolicy` lo limpia (máximo 40 caracteres). Se guarda en `SetAlarm.label`; desde Confirmar se dicta con el dato faltante `ALARM_LABEL`.
+- **Reconocimiento de voz:** `AndroidSpeechService` prueba una cadena de reconocedores (sin conexión → en línea → otros instalados, primero Google). Si falla en un teléfono nuevo, el registro `WithYou.Speech` dice por qué.
+- **`di/AppContainer`** crea una sola vez cada pieza (base de datos, repositorios, servicios, parser) y se la entrega a los ViewModels. Para cambiar una implementación se toca solo ese archivo.
 
 ## 6. Convenciones del equipo
 
@@ -88,7 +95,7 @@ View (Fragments + XML)  ──eventos──►  ViewModel (StateFlow)  ──►
 
 | Pruebas | Comando | Notas |
 |---|---|---|
-| Unitarias (146) | `.\gradlew.bat testDebugUnitTest` | Sin teléfono, unos segundos |
+| Unitarias (158) | `.\gradlew.bat testDebugUnitTest` | Sin teléfono, unos segundos |
 | En el teléfono (18) | `.\gradlew.bat assembleDebug assembleDebugAndroidTest`, instalar ambos APK con `adb install -r` y luego `adb shell am instrument -w cl.withyou.app.test/androidx.test.runner.AndroidJUnitRunner` | Ver trampas abajo |
 
 **Trampas conocidas de las pruebas en el teléfono:**
@@ -115,6 +122,9 @@ View (Fragments + XML)  ──eventos──►  ViewModel (StateFlow)  ──►
 - **El PIN solo protege Ajustes y los cambios en Contactos.** Llamar, enviar mensajes y hablar con la app siguen sin PIN.
 - **Toda acción crítica pasa por Confirmar,** incluido el botón verde de llamar en Contactos y las opciones elegidas en "No entendí bien".
 - **"A las 8" sin mañana ni noche pide aclaración,** porque una alarma a la hora equivocada es un error grave para este usuario.
+- **El nombre de la alarma es opcional:** se dice en la frase o con el botón "Ponerle nombre"; nunca se pregunta siempre. Sin nombre, la alarma se llama "Withyou". Decir "no" al pedir el nombre vuelve a la confirmación sin perder la alarma.
+- **"Recuérdame…" crea una alarma con nombre,** no una llamada ni un mensaje ("recuérdame llamar a María a las cinco").
+- **Docker no aplica** (decisión del 25-11-2026): Withyou es una app nativa sin servidor. Se justifica en el Documento de Diseño y en el Manual Técnico; no agregar Docker sin consultarlo con el equipo.
 
 Lista completa con sus justificaciones: sección 9 del informe.
 
@@ -135,6 +145,7 @@ Lista completa con sus justificaciones: sección 9 del informe.
 **Pendientes de definir con el equipo:**
 - **Alarmas de "mañana":** "mañana a las 8" dicho a las 7:00 suena el mismo día, por cómo funciona el Reloj del sistema.
 - **Recuperar un PIN olvidado:** hoy solo se puede borrando los datos de la app.
+- **"Alarma para una reunión":** no se reconoce como nombre porque "una" se confunde con "la una". Hoy se resuelve con el botón "Ponerle nombre".
 
 **Mejoras futuras (fuera del MVP):**
 - Envío automático de SMS.

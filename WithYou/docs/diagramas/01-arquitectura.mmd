@@ -1,0 +1,26 @@
+flowchart TB
+    U(["Adulto mayor / cuidador"])
+    subgraph APP["App Withyou: un solo APK, todo dentro del teléfono"]
+        direction TB
+        V["<b>Capa View</b><br/>MainActivity · Fragments: Inicio, Confirmar, Aclarar, Resultado,<br/>Mensajes, Contactos, Ajustes · layouts XML"]
+        VM["<b>Capa ViewModel</b><br/>AssistantViewModel · ContactsViewModel · MessagesViewModel<br/>SettingsViewModel · SecurityViewModel (StateFlow)"]
+        D["<b>Dominio, Kotlin puro</b><br/>TextNormalizer · TimeExtractor · ContactMatcher<br/>IntentParser → CommandProcessor · validadores · PinHasher"]
+        R["<b>Repositorios</b><br/>ContactRepository · PreferencesRepository · PinRepository"]
+        S["<b>Servicios, detrás de interfaces</b><br/>SpeechService · TtsService · ActionExecutor · PhoneContactReader"]
+        DI["di/AppContainer<br/>inyección de dependencias"]
+    end
+    DB[("Room + SQLCipher<br/>withyou-secure.db")]
+    DS[("Jetpack DataStore<br/>preferencias y PIN")]
+    KS["Android Keystore<br/>clave de cifrado"]
+    OS["APIs de Android<br/>SpeechRecognizer · TextToSpeech · AlarmClock<br/>Intents de llamada y SMS · CameraManager · AudioManager"]
+    U -- "voz y toques" --> V
+    V -- "eventos" --> VM
+    VM -- "estado UiState" --> V
+    VM --> D
+    VM --> R
+    VM --> S
+    R --> DB
+    R --> DS
+    DB -. "clave" .- KS
+    S --> OS
+    DI -. "crea y entrega" .-> VM

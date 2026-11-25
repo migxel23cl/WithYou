@@ -1,6 +1,6 @@
 # Informe Fase 2 (Desarrollo) — Withyou
 
-> Última actualización: 19-11-2026 · **Los 8 pasos del plan completos** y validados en dos teléfonos
+> Última actualización: 25-11-2026 · **Los 8 pasos del plan completos** y validados en dos teléfonos · versión 0.1.2 · documentos de la metodología listos (sección 13)
 > Proyecto Capstone Duoc UC · Metodología Cascada · Equipo: Miguel Pereira (jefe de proyecto), Baltazar Ordoñez (voz e interpretación), José Luis Donoso (interfaz y accesibilidad), Joaquín Mendoza (pruebas y documentación técnica)
 
 ## 1. Resumen ejecutivo
@@ -13,7 +13,7 @@ La aplicación funciona de punta a punta en un teléfono real (Samsung Galaxy J2
 2. La app reconoce la instrucción, la interpreta y la ejecuta.
 3. La app responde **por voz y en pantalla al mismo tiempo**.
 
-Funciones operativas: consultar la hora y la fecha, encender y apagar la linterna, subir y bajar el volumen, **crear alarmas por voz con confirmación** (pantallas Confirmar, Aclarar y Resultado), **registrar contactos frecuentes**, **llamarlos** y **enviarles mensajes dictados**, siempre con confirmación, **ajustar el tamaño del texto, el volumen de la voz y la respuesta por voz**, y **agregar contactos desde la agenda del teléfono**. Los contactos se guardan cifrados y el cuidador puede proteger Ajustes y Contactos con un PIN.
+Funciones operativas: consultar la hora y la fecha, encender y apagar la linterna, subir y bajar el volumen, **crear alarmas por voz con confirmación y con nombre** ("para tomar la pastilla") (pantallas Confirmar, Aclarar y Resultado), **registrar contactos frecuentes**, **llamarlos** y **enviarles mensajes dictados**, siempre con confirmación, **ajustar el tamaño del texto, el volumen de la voz y la respuesta por voz**, y **agregar contactos desde la agenda del teléfono**. Los contactos se guardan cifrados y el cuidador puede proteger Ajustes y Contactos con un PIN.
 
 | Indicador | Valor |
 |---|---|
@@ -21,7 +21,7 @@ Funciones operativas: consultar la hora y la fecha, encender y apagar la lintern
 | Requerimientos funcionales | 13 de 13 completos |
 | Requerimientos no funcionales | 8 de 8 cumplidos |
 | Casos de uso operativos | 8 de 8 |
-| Pruebas automatizadas | 146 unitarias + 18 instrumentadas en el teléfono (8 de interfaz con Espresso), todas aprobadas |
+| Pruebas automatizadas | 158 unitarias + 18 instrumentadas en el teléfono (8 de interfaz con Espresso), todas aprobadas |
 | Tiempo de respuesta (RNF-03) | 424 ms en promedio y 572 ms en el peor caso desde la última palabra (meta ≤ 3 s) |
 | Memoria (RNF-04) | 38 MB en uso (4,4 % de la RAM del teléfono de 1 GB) |
 | Control de versiones | Git, una rama por paso |
@@ -94,9 +94,9 @@ Las dependencias van siempre hacia abajo: la View conoce al ViewModel y el ViewM
 | `ui/assistant/AssistantUiState.kt` | ViewModel | Estado: pantalla visible, estado de la voz, lo escuchado, el mensaje, la confirmación y las opciones |
 | `ui/assistant/ResponseTexts.kt` | ViewModel | Interfaz de las frases (para no depender de Android) |
 | `domain/model/` | Model | `UserIntent`, `Decision`, `ParseResult`, `TimeSpec`, `Contact`, `AccessibilityPreferences` (con los rangos seguros de texto y voz) |
-| `domain/parser/` | Model | `TextNormalizer`, `NumberWords`, `TimeExtractor`, `StringSimilarity`, `ContactMatcher`, `IntentParser`, `ChoiceParser` |
+| `domain/parser/` | Model | `TextNormalizer`, `NumberWords`, `TimeExtractor`, `StringSimilarity`, `ContactMatcher`, `IntentParser`, `ChoiceParser`, `AlarmLabelExtractor` |
 | `domain/processor/` | Model | `CommandProcessor` |
-| `domain/validation/` | Model | `ContactValidator`: limpia y valida nombres y teléfonos (lo usan el formulario, la importación y el `CommandProcessor`) |
+| `domain/validation/` | Model | `ContactValidator`: limpia y valida nombres y teléfonos (lo usan el formulario, la importación y el `CommandProcessor`). `AlarmLabelPolicy`: limpia el nombre de una alarma (máximo 40 caracteres) |
 | `domain/security/` | Model | `PinHasher` y `PinPolicy`: el PIN se guarda como hash PBKDF2 con sal aleatoria, nunca el PIN mismo |
 | `data/local/` | Model | `AppDatabase` (Room **cifrado con SQLCipher**), `DatabasePassphrase` (clave protegida por el Android Keystore), `ContactEntity`, `ContactDao`. Esquema exportado en `app/schemas/` |
 | `data/repository/` | Model | `ContactRepository` (interfaz) y `RoomContactRepository`: entrega contactos del dominio, no entidades de Room |
@@ -128,6 +128,7 @@ Las dependencias van siempre hacia abajo: la View conoce al ViewModel y el ViewM
 | `TimeExtractor` | Expresiones horarias coloquiales: "a las ocho y media de la noche", "un cuarto para las nueve", "mediodía", "en 20 minutos". Distingue "mañana" (día siguiente) de "de la mañana" (momento del día) |
 | `ContactMatcher` | Coincidencia difusa (Jaro-Winkler) para tolerar errores de reconocimiento; detecta ambigüedades como dos contactos "María" |
 | `IntentParser` | Basado en reglas y patrones. Reconoce 10 intenciones (alarma, llamada, mensaje, linterna, volumen, hora, fecha, sí, no, desconocida) y devuelve hasta 3 candidatas con su confianza (0 a 1). Con `completeSlot` completa un dato que faltaba ("¿A qué hora?" → "a las ocho"), respetando lo dicho antes ("en la tarde" + "a las cinco" = 17:00) |
+| `AlarmLabelExtractor` | Encuentra el nombre de una alarma en la frase ("para tomar la pastilla", "que diga…", "con el nombre…", "recuérdame…") y lo separa de la hora, para que "tomar 2 pastillas a las 8" se entienda como las 8 y "recuérdame llamar a María" sea una alarma y no una llamada |
 | `ChoiceParser` | Entiende la opción elegida en "¿Quisiste decir…?": "la primera", "opción dos", "la última", o "de la noche" para elegir entre mañana y noche |
 | `CommandProcessor` | Decide: ejecutar (no crítica), pedir confirmación (crítica), pedir aclaración (ambigüedad o baja confianza), pedir un dato faltante o rechazar. Valida hora, número de teléfono y largo del mensaje |
 
@@ -152,6 +153,7 @@ Las dependencias van siempre hacia abajo: la View conoce al ViewModel y el ViewM
 - **Pantalla Mensajes** (CU-03, mockup 3): "¿A quién le escribes?", contactos que se marcan con un check al elegirlos y micrófono grande "Dictar mensaje". Si no hay contactos, ofrece ir a Contactos.
 - **Pantalla Ajustes** (RF-12, mockup 7): tamaño del texto (100 % a 160 %) con vista previa, volumen de la voz (20 % a 100 %) con una muestra al soltar el control, y "Responder también con la voz". El tamaño se aplica a toda la app.
 - **Confirmar un mensaje**: la app lee el mensaje en voz alta y ofrece "Sí, enviar", "Corregir mensaje" (dictarlo de nuevo) y "Cancelar".
+- **Confirmar una alarma**: muestra y lee el nombre si se dijo; el botón "Ponerle nombre" (o "Cambiar nombre") permite dictarlo. El nombre queda guardado en la alarma del Reloj.
 - **Pantalla Resultado**: check verde, "Reproduciendo confirmación…" y vuelta automática al Inicio a los 8 s. En Confirmar, Aclarar y Resultado se oculta la barra inferior para no distraer.
 - **Navegación** con Navigation Component: Inicio, Mensajes, Contactos y Ajustes, todas a un nivel desde Inicio.
 - **Estilo:** paleta del mockup (`#1F4E8C`, `#E6F1FB`, `#CFE5F7`, `#1E9E57`, `#D32F2F`), texto base de 20sp, títulos de 28sp y elementos táctiles de 56dp o más.
@@ -170,7 +172,7 @@ Las dependencias van siempre hacia abajo: la View conoce al ViewModel y el ViewM
 | RF-02 | Voz a texto | ✅ Completo | `SpeechRecognizer` es-CL, 3 alternativas |
 | RF-03 | Identificar la intención | ✅ Completo | `IntentParser` (10 intenciones) |
 | RF-04 | Aclaración ante ambigüedad | ✅ Completo | `CommandProcessor` + pantalla "No entendí bien" + `ChoiceParser` |
-| RF-05 | Alarmas por voz | ✅ Completo | `AlarmClock.ACTION_SET_ALARM`, con confirmación y pantalla de resultado |
+| RF-05 | Alarmas por voz | ✅ Completo | `AlarmClock.ACTION_SET_ALARM`, con confirmación y pantalla de resultado; nombre opcional dicho en la frase o desde Confirmar |
 | RF-06 | Llamar por voz | ✅ Completo | "Llama a María" → Confirmar → `ACTION_CALL` (o `ACTION_DIAL` sin permiso) |
 | RF-07 | Mensajes por voz | ✅ Completo | Dictado → lectura en voz alta → confirmación → `ACTION_SENDTO` (el usuario toca Enviar en Mensajes) |
 | RF-08 | Linterna y volumen | ✅ Completo | `AndroidActionExecutor` |
@@ -215,9 +217,11 @@ Las dependencias van siempre hacia abajo: la View conoce al ViewModel y el ViewM
 | `TextNormalizerTest` | Normalización de texto | 2 |
 | `TimeExtractorTest` | Más de 40 expresiones horarias coloquiales | 3 |
 | `ContactMatcherTest` | Búsqueda difusa, ambigüedades, nombres por parentesco | 8 |
-| `IntentParserTest` | Tablas de frases reales en español de Chile → intención esperada; completar datos faltantes | 14 |
+| `IntentParserTest` | Tablas de frases reales en español de Chile → intención esperada; completar datos faltantes; alarmas con nombre | 16 |
+| `AlarmLabelExtractorTest` | Nombre de la alarma dicho de distintas formas, frases sin nombre, tildes conservadas | 3 |
+| `AlarmLabelPolicyTest` | Limpieza del nombre, límite de 40 caracteres, nombres sin letras | 2 |
 | `ChoiceParserTest` | Elegir opciones por voz ("la primera", "de la noche") | 3 |
-| `CommandProcessorTest` | Confirmación, aclaración, validación de hora y teléfono, flujo completo | 20 |
+| `CommandProcessorTest` | Confirmación, aclaración, validación de hora y teléfono, flujo completo; la alarma relativa conserva su nombre | 21 |
 | `ContactValidatorTest` | Teléfonos y nombres válidos e inválidos | 3 |
 | `ContactsViewModelTest` | Guardar, validar, editar y eliminar contactos; importar desde la agenda (duplicados, números y nombres inválidos) | 9 |
 | `MessagesViewModelTest` | Elegir destinatario y qué pasa si se elimina | 3 |
@@ -225,8 +229,8 @@ Las dependencias van siempre hacia abajo: la View conoce al ViewModel y el ViewM
 | `SettingsViewModelTest` | Guardar cada preferencia, límites, muestra de voz con el volumen elegido | 5 |
 | `PinHasherTest` | PIN correcto e incorrecto, sal distinta cada vez, datos dañados, 4 dígitos | 4 |
 | `SecurityViewModelTest` | Crear, bloquear, desbloquear, cambiar y quitar el PIN | 6 |
-| `AssistantViewModelTest` | Conversación completa con servicios simulados: confirmar, cancelar, aclarar, pedir datos, resultado, llamadas, mensajes, volumen y voz desactivada, errores, tiempos de espera y medición de latencia | 63 |
-| **Total** | | **146, todas aprobadas** |
+| `AssistantViewModelTest` | Conversación completa con servicios simulados: confirmar, cancelar, aclarar, pedir datos, resultado, llamadas, mensajes, volumen y voz desactivada, errores, tiempos de espera, medición de latencia y nombre de la alarma | 67 |
+| **Total** | | **158, todas aprobadas** |
 
 Ejecución: `.\gradlew.bat testDebugUnitTest`
 
@@ -333,6 +337,9 @@ Samsung Galaxy J2 Core (SM-J260M), Android 8.1 Go, 1 GB de RAM (representa al p�
 | PIN guardado como hash PBKDF2 con sal, se bloquea al salir de la pantalla | Aunque se lea el archivo no se obtiene el PIN; no queda desbloqueado por olvido |
 | Todos los diálogos con `AppDialog` (botones fijos abajo) | Diseño responsive: funciona en pantallas pequeñas, con texto al 160 % y con teclado abierto |
 | Agregar contactos eligiendo en la agenda (sin `READ_CONTACTS`) en vez de importar todos | Decidido con el equipo (18-11-2026): no requiere permisos (RNF-06) y mantiene la lista corta de frecuentes |
+| El nombre de la alarma es opcional: se dice en la frase o con "Ponerle nombre", nunca se pregunta siempre | Preguntar siempre sería un paso más para un adulto mayor; sin nombre la alarma se llama "Withyou" |
+| "Recuérdame…" y "recordatorio…" crean una alarma con nombre | Encaja con el uso más frecuente del público objetivo (medicamentos, citas) sin agregar una función nueva |
+| Decir "no" al pedir el nombre vuelve a la confirmación | No se pierde la alarma por arrepentirse de ponerle nombre |
 | Cadena de respaldo de reconocedores de voz | Cada marca y modelo trae reconocedores distintos (Android Go sin motor sin conexión, Samsung con un reconocedor solo local); probar alternativas antes de mostrar un error hace que la app funcione en más teléfonos sin pedir configuración al usuario (RNF-07) |
 
 ## 10. Supuestos y limitaciones
@@ -341,6 +348,7 @@ Samsung Galaxy J2 Core (SM-J260M), Android 8.1 Go, 1 GB de RAM (representa al p�
 - **Motor de voz:** el dispositivo debe tener activo "Servicios de voz de Google".
 - **Alarmas:** `AlarmClock` programa la alarma para la próxima vez que llegue esa hora; "mañana a las 8" dicho a las 7:00 sonaría el mismo día. Pendiente de definir con el equipo.
 - **PIN olvidado:** no hay forma de recuperarlo desde la app; el cuidador debe borrar los datos de Withyou desde los Ajustes del teléfono (se pierden también los contactos frecuentes).
+- **Nombre de la alarma:** "para una reunión" no se reconoce como nombre, porque "una" se confunde con "la una"; en ese caso se usa el botón "Ponerle nombre".
 - **Historial de comandos:** el diseño mencionaba guardarlo (`CommandLogEntity`), pero ningún requerimiento lo exige y no se implementó, para no almacenar datos personales sin necesidad.
 
 ## 11. Trabajo pendiente
@@ -361,10 +369,25 @@ Los 8 pasos del plan están completos. Queda:
 
 | Elemento | Detalle |
 |---|---|
-| Aplicación | `Withyou-v0.1.1.apk` (versión de prueba *debug*, 27,3 MB), generada desde `main`. Reemplaza a la 0.1.0 (ver problema 10); se instala encima sin perder datos |
+| Aplicación | `Withyou-v0.1.2.apk` (versión de prueba *debug*, 27,3 MB), generada desde `main`. Incluye la corrección de la 0.1.1 (problema 10) y el nombre de las alarmas; se instala encima de versiones anteriores sin perder datos |
 | Código fuente | Repositorio Git del proyecto (rama `main`) |
 | Evidencia de pruebas | Reporte de JUnit en `app/build/reports/tests/testDebugUnitTest/index.html`; tiempos del RNF-03 en `docs/evidencia-rnf03-latencias.log` |
 
 **Requisitos del teléfono:** Android 8.0 o superior, internet (en Android Go el reconocimiento de voz lo necesita) y "Servicios de voz de Google" activado.
+
+## 13. Documentos de la metodología (25-11-2026)
+
+El anexo "Artefactos y documentos solicitados por metodología" pide cuatro documentos para Cascada. Se redactaron a partir de la Fase 1 y de este informe, y están en `Fase 2/Evidencias Proyecto` del repositorio de entrega:
+
+| Documento | Archivo | Páginas |
+|---|---|---|
+| Requerimientos (SRS simplificado), con la sección de innovación | `1_Documento_Requerimientos_SRS.docx` | 13 |
+| Diseño: arquitectura, componentes, UML, modelo de datos, seguridad y despliegue | `2_Documento_Diseno.docx` | 12 |
+| Plan de pruebas y evidencias | `3_Plan_Pruebas_Evidencias.docx` | 9 |
+| Manual técnico y de despliegue | `4_Manual_Tecnico_Despliegue.docx` | 6 |
+
+Los diagramas (arquitectura, componentes, casos de uso, clases, secuencia y modelo de datos) están en `docs/diagramas/`, en formato Mermaid y como imagen.
+
+**Decisión (25-11-2026):** el anexo pide Docker para todos los proyectos, pero **no aplica** a Withyou: es una app nativa que corre completa en el teléfono, sin servidor ni base de datos externa. Se justifica en el Documento de Diseño (sección 8) y en el Manual Técnico.
 
 **Instalación:** abrir el APK, permitir la instalación desde esa fuente y, si Google Play Protect lo advierte, elegir "Instalar de todas formas" (la app no viene de la tienda). La versión *debug* está firmada con una clave de desarrollo; para entregar a usuarios conviene una versión *release* firmada con una clave del proyecto.
