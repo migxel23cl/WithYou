@@ -15,7 +15,7 @@ Flujo base de toda interacción:
 No es un asistente general. Es una capa de accesibilidad acotada a unas pocas tareas cotidianas, con **confirmación de acciones críticas** y **tolerancia a errores** (nunca falla en silencio: si no entiende, ofrece opciones).
 
 - Contexto: proyecto Capstone de Duoc UC (Ing. en Informática), profesor Aldo Martínez, metodología **Cascada**. Ya terminó la Fase 1 (Inicio, análisis y diseño documentados). **Ahora empieza la Fase 2: desarrollo.**
-- Equipo: Miguel Pereira (jefe de proyecto), Baltazar Ordoñez (voz e interpretación), José Luis Donoso (interfaz y accesibilidad), Joaquín Mendoza (pruebas y documentación técnica).
+- Equipo: Miguel Pereira (jefe de proyecto), Baltasar Ordoñez (voz e interpretación), José Luis Donoso (interfaz y accesibilidad), Joaquín Mendoza (pruebas y documentación técnica).
 - El alcance es limitado por tiempo (los riesgos altos identificados son alcance excesivo, ambigüedad del lenguaje natural y falta de tiempo). **Prioriza un MVP que funcione de punta a punta antes de sumar funcionalidades.**
 
 ## 2. Stack definido (no cambiar sin avisar)

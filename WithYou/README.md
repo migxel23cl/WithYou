@@ -174,7 +174,7 @@ adb shell am instrument -w cl.withyou.app.test/androidx.test.runner.AndroidJUnit
 | Integrante | Rol |
 |---|---|
 | Miguel Pereira | Jefe de proyecto |
-| Baltazar Ordoñez | Voz e interpretación |
+| Baltasar Ordoñez | Voz e interpretación |
 | José Luis Donoso | Interfaz y accesibilidad |
 | Joaquín Mendoza | Pruebas y documentación técnica |
 

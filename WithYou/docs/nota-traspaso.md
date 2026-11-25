@@ -1,7 +1,7 @@
 # Nota de traspaso — Withyou
 
 > 25-11-2026 · Versión de la app: **0.1.2** · Preparada por Miguel Pereira (jefe de proyecto)
-> Para quien continúe el proyecto: el equipo (Baltazar, José Luis, Joaquín), otra sesión de trabajo o una IA.
+> Para quien continúe el proyecto: el equipo (Baltasar, José Luis, Joaquín), otra sesión de trabajo o una IA.
 > El informe completo está en [`avance-fase2.md`](avance-fase2.md); esta nota resume lo necesario para **seguir trabajando**.
 
 ---
