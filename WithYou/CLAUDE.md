@@ -14,7 +14,7 @@ Flujo base de toda interacción:
 
 No es un asistente general. Es una capa de accesibilidad acotada a unas pocas tareas cotidianas, con **confirmación de acciones críticas** y **tolerancia a errores** (nunca falla en silencio: si no entiende, ofrece opciones).
 
-- Contexto: proyecto Capstone de Duoc UC (Ing. en Informática), profesor Aldo Martínez, metodología **Cascada**. Ya terminó la Fase 1 (Inicio, análisis y diseño documentados). **Ahora empieza la Fase 2: desarrollo.**
+- Contexto: proyecto Capstone de Duoc UC (Ing. en Informática), profesor Aldo Martínez, metodología **Cascada**. Ya terminaron la Fase 1 (Inicio, análisis y diseño) y la Fase 2 (desarrollo, entregada en GitHub el 25-11-2026). **Ahora empieza la Fase 3: cierre** (pruebas con usuarios, documentación final, presentación final y defensa). Ver `docs/nota-traspaso.md`.
 - Equipo: Miguel Pereira (jefe de proyecto), Baltasar Ordoñez (voz e interpretación), José Luis Donoso (interfaz y accesibilidad), Joaquín Mendoza (pruebas y documentación técnica).
 - El alcance es limitado por tiempo (los riesgos altos identificados son alcance excesivo, ambigüedad del lenguaje natural y falta de tiempo). **Prioriza un MVP que funcione de punta a punta antes de sumar funcionalidades.**
 
@@ -190,7 +190,7 @@ Para retomar el proyecto, leer primero [`docs/nota-traspaso.md`](docs/nota-trasp
 
 - ✅ **Los 8 pasos completos** (13 de 13 RF, 8 de 8 RNF): todo funciona en el teléfono, incluido cifrado (SQLCipher + Keystore), PIN del cuidador, accesibilidad verificada con Espresso, RNF-03 medido (424 ms promedio) y agregar contactos desde la agenda.
 - 🧭 `AssistantViewModel` (en `ui/assistant/`) es el único ViewModel de la conversación; lo comparten Inicio, Confirmar, Aclarar y Resultado. `MainActivity` navega según `AssistantUiState.screen`.
-- ⏭️ Siguiente: pruebas con usuarios (adultos mayores). El repositorio de entrega está en https://github.com/migxel23cl/WithYou (copia local en `Escritorio\Capstone Entrega\WithYou`; el código va en su subcarpeta `WithYou/`).
+- ⏭️ Siguiente (Fase 3): pruebas con adultos mayores, TalkBack manual, versión release, presentación final y diarios 3.1; plan completo en `docs/nota-traspaso.md`. Las evidencias se nombran **exactamente como en el Excel del curso, sin prefijo de grupo**, y el push lo hace Miguel. El repositorio de entrega está en https://github.com/migxel23cl/WithYou (copia local en `Escritorio\Capstone Entrega\WithYou`; el código va en su subcarpeta `WithYou/`).
 - 📄 Documentos de Cascada (SRS, Diseño, Plan de Pruebas, Manual Técnico) en `Fase 2/Evidencias Proyecto` del repositorio de entrega; diagramas en `docs/diagramas/`. **Docker no aplica** (app nativa sin servidor): no agregarlo sin consultar.
 - 📱 Diseño responsive: todo diálogo usa `AppDialog` (botones fijos abajo); en pantallas con botones de acción, los botones van fijos fuera del `ScrollView`. `ResponsiveUiTest` lo comprueba con texto al 160 %.
 - 🔐 Seguridad: la base de datos se llama `withyou-secure.db` (cifrada); el PIN solo protege Ajustes y cambios en Contactos.

@@ -1,6 +1,6 @@
 # Informe Fase 2 (Desarrollo) — Withyou
 
-> Última actualización: 25-11-2026 · **Los 8 pasos del plan completos** y validados en dos teléfonos · versión 0.1.2 · documentos de la metodología listos (sección 13)
+> Última actualización: 27-11-2026 · **Fase 2 cerrada y entregada en GitHub (25-11-2026)** · los 8 pasos completos y validados en dos teléfonos · versión 0.1.2 · documentos de la metodología listos (sección 13) · 158 pruebas unitarias aprobadas el 27-11-2026
 > Proyecto Capstone Duoc UC · Metodología Cascada · Equipo: Miguel Pereira (jefe de proyecto), Baltasar Ordoñez (voz e interpretación), José Luis Donoso (interfaz y accesibilidad), Joaquín Mendoza (pruebas y documentación técnica)
 
 ## 1. Resumen ejecutivo

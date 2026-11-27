@@ -5,7 +5,7 @@
 Withyou es una capa de accesibilidad por voz: en vez de navegar menús, la persona toca un botón grande y dice lo que necesita. La app entiende la instrucción, **pide confirmación antes de cualquier acción importante** y responde **por voz y en pantalla a la vez**. Si no entiende, nunca falla en silencio: ofrece opciones.
 
 > Proyecto Capstone · Ingeniería en Informática · Duoc UC
-> Profesor: Aldo Martínez · Metodología: Cascada · Fase 2 (Desarrollo) completa
+> Profesor: Aldo Martínez · Metodología: Cascada · Fase 2 (Desarrollo) completa · Fase 3 (Cierre) en curso
 
 
 ## Estructura del repositorio
